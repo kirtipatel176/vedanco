@@ -1,5 +1,5 @@
 
-import { Code, Cpu, Megaphone, User, Briefcase, Mic } from "lucide-react";
+import { type LucideIcon } from "lucide-react";
 
 export type ServiceData = {
     id: string;
@@ -8,7 +8,7 @@ export type ServiceData = {
     description: string;
     color: string;
     accent: string;
-    icon: any;
+    icon: LucideIcon;
     heroImage: string; // Placeholder
     offsetImage: boolean; // For alternating layout
     partner: string;

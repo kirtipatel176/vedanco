@@ -3,18 +3,29 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
 import { MapPin, Briefcase, Search, ArrowRight, Clock } from "lucide-react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { IJob } from "@/models/Job";
+
 
 const departments = ["All", "IT Services", "AI & Automation", "Digital Marketing", "Personal Branding", "US Recruitment", "Podcast Production"];
-const types = ["All", "Full-Time", "Part-Time", "Contract", "Internship"];
-const locations = ["All", "Remote", "Ahmedabad", "Onsite"];
+
+
+interface Job {
+    _id?: string;
+    id?: string;
+    slug: string;
+    title: string;
+    department: string;
+    location: string;
+    type: string;
+    status?: string;
+    description?: string;
+    createdAt?: string | Date;
+}
 
 interface CareersClientProps {
-    initialJobs: any[];
+    initialJobs: Job[];
 }
 
 export default function CareersClient({ initialJobs }: CareersClientProps) {
@@ -28,7 +39,7 @@ export default function CareersClient({ initialJobs }: CareersClientProps) {
         const matchType = selectedType === "All" || job.type === selectedType;
         const matchLoc = selectedLocation === "All" || job.location.includes(selectedLocation);
         const matchSearch = job.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            job.description.toLowerCase().includes(searchQuery.toLowerCase());
+            job.description?.toLowerCase().includes(searchQuery.toLowerCase());
         return matchDept && matchType && matchLoc && matchSearch;
     });
 
@@ -39,7 +50,7 @@ export default function CareersClient({ initialJobs }: CareersClientProps) {
                 <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10" />
                 <div className="container mx-auto relative z-10">
                     <Badge variant="outline" className="border-accent-gold/30 text-accent-gold font-space-mono text-xs tracking-widest uppercase mb-6 py-1.5 px-3">
-                        — We're Hiring
+                        — We&apos;re Hiring
                     </Badge>
                     <h1 className="font-display font-black text-5xl md:text-7xl text-white mb-6">
                         Work With The Best. <br />
@@ -94,7 +105,7 @@ export default function CareersClient({ initialJobs }: CareersClientProps) {
                 {filteredJobs.length > 0 ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         <AnimatePresence mode="popLayout">
-                            {filteredJobs.map((job, i) => (
+                            {filteredJobs.map((job) => (
                                 <motion.div
                                     key={job._id || job.id}
                                     layout
@@ -111,7 +122,7 @@ export default function CareersClient({ initialJobs }: CareersClientProps) {
                                                         {job.department}
                                                     </Badge>
                                                     <span className="text-[10px] font-space-mono text-gray-400 flex items-center gap-1">
-                                                        <Clock size={10} /> {new Date(job.createdAt).toLocaleDateString()}
+                                                        <Clock size={10} /> {job.createdAt ? new Date(job.createdAt).toLocaleDateString() : ""}
                                                     </span>
                                                 </div>
 

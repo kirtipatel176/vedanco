@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { ValidationDemo } from "@/components/demos/validation-demo";
 import { toast } from "sonner";
+import { Check, AlertTriangle, X, Info, ArrowRight, Zap, Star } from "lucide-react";
 
 export default function DesignSystemPage() {
     const container = {
@@ -18,7 +19,7 @@ export default function DesignSystemPage() {
         }
     };
 
-    const item = {
+    const _item = {
         hidden: { opacity: 0, y: 20 },
         show: { opacity: 1, y: 0 }
     };
@@ -103,7 +104,7 @@ export default function DesignSystemPage() {
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                         <div className="text-text-muted">Mono / Space Mono</div>
                         <div className="md:col-span-2 space-y-4">
-                            <p className="font-space-mono text-sm">const vedanco = "Future of Work";</p>
+                            <p className="font-space-mono text-sm">const vedanco = &quot;Future of Work&quot;;</p>
                             <p className="font-space-mono text-xs text-text-muted">Used for code snippets, technical data, and badges.</p>
                         </div>
                     </div>
@@ -150,10 +151,10 @@ export default function DesignSystemPage() {
                     <div className="flex flex-wrap gap-4 items-center">
                         <Button>Default Button</Button>
                         <Button variant="secondary">Secondary</Button>
-                        <Button variant="destructive">Destructive</Button>
+                        <Button variant="secondary" className="bg-red-500 hover:bg-red-600 text-white border-none">Destructive</Button>
                         <Button variant="outline">Outline</Button>
                         <Button variant="ghost">Ghost</Button>
-                        <Button variant="link">Link</Button>
+                        <Button variant="ghost" className="underline">Link</Button>
 
                         <Button className="rounded-full gap-2">
                             Start Project <ArrowRight size={16} />

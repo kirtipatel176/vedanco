@@ -78,12 +78,12 @@ export function JobDialog({
                     title: initialValues.title || "",
                     department: initialValues.department || "",
                     location: initialValues.location || "",
-                    type: (initialValues.type as any) || "Full-time",
+                    type: (initialValues.type as "Full-time" | "Part-time" | "Contract" | "Internship") || "Full-time",
                     description: initialValues.description || "",
                     requirements: initialValues.requirements?.join("\n") || "",
                     salaryRange: initialValues.salaryRange || "",
                     experienceRequired: initialValues.experienceRequired || "",
-                    status: (initialValues.status as any) || "draft",
+                    status: (initialValues.status as "draft" | "active" | "closed") || "draft",
                 });
             } else {
                 form.reset({

@@ -26,10 +26,16 @@ export async function createJob(jobData: Partial<IJob>) {
     }
 }
 
-export async function getJobs(filter: any = {}) {
+export async function getJobs(filter: Record<string, unknown> = {}, limit?: number) {
     try {
         await connectToDatabase();
-        const jobs = await Job.find(filter).sort({ createdAt: -1 });
+        let query = Job.find(filter).sort({ createdAt: -1 });
+
+        if (limit) {
+            query = query.limit(limit);
+        }
+
+        const jobs = await query;
         return JSON.parse(JSON.stringify(jobs));
     } catch (error) {
         console.error("Error fetching jobs:", error);

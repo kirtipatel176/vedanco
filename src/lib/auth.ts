@@ -3,14 +3,14 @@ import bcrypt from "bcryptjs";
 
 const JWT_SECRET = process.env.JWT_SECRET || "your-super-secret-jwt-key-change-this";
 
-export const signToken = (payload: any) => {
+export const signToken = (payload: Record<string, unknown>) => {
     return jwt.sign(payload, JWT_SECRET, { expiresIn: "1d" });
 };
 
 export const verifyToken = (token: string) => {
     try {
         return jwt.verify(token, JWT_SECRET);
-    } catch (error) {
+    } catch {
         return null;
     }
 };

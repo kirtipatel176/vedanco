@@ -20,7 +20,7 @@ export type UserProfile = {
 };
 
 // Helper to serialize Mongoose document to plain object
-function serializeUser(user: any): UserProfile {
+function serializeUser(user: IUser & { _id: { toString(): string }; createdAt: Date; updatedAt: Date }): UserProfile {
     return {
         _id: user._id.toString(),
         name: user.name,
@@ -47,9 +47,9 @@ export async function getUserProfile(userId: string) {
         }
 
         return { user: serializeUser(user) };
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error("Error fetching user profile:", error);
-        return { error: error.message || "Failed to fetch profile" };
+        return { error: error instanceof Error ? error.message : "Failed to fetch profile" };
     }
 }
 
@@ -57,11 +57,11 @@ export async function updateUserProfile(userId: string, data: Partial<IUser>) {
     try {
         await connectToDatabase();
 
-        // Prevent updating sensitive fields via this action if necessary
-        const { email, password, ...updateData } = data as any;
+        // Prevent updating sensitive fields (email, password) via this action
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { email: _email, password: _password, ...updateData } = data;
 
-        // If email update is allowed, we should check for uniqueness, but for now let's assume email is immutable via this form or handled carefully.
-        // The requirement says "Allow updating values", implies basic profile info.
+        // Email is treated as immutable via this form; password changes require a dedicated flow.
 
         const updatedUser = await User.findByIdAndUpdate(
             userId,
@@ -76,8 +76,8 @@ export async function updateUserProfile(userId: string, data: Partial<IUser>) {
         revalidatePath("/dashboard/profile");
 
         return { success: true, user: serializeUser(updatedUser) };
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error("Error updating user profile:", error);
-        return { error: error.message || "Failed to update profile" };
+        return { error: error instanceof Error ? error.message : "Failed to update profile" };
     }
 }

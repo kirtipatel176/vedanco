@@ -3,7 +3,6 @@
 import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { ShieldCheck, Zap, Globe, Users } from "lucide-react";
-import Image from "next/image";
 
 export default function CompanyPage() {
     return (
@@ -44,7 +43,7 @@ export default function CompanyPage() {
                                 Founded with a singular mission: to bridge the gap between complex engineering and elegant design. We believe that true innovation happens when technical rigor meets creative fluidity.
                             </p>
                             <p>
-                                From our headquarters, we coordinate a distributed team of elite engineers, designers, and strategists. We don't just write code; we architect solutions that scale, perform, and endure.
+                                From our headquarters, we coordinate a distributed team of elite engineers, designers, and strategists. We don&apos;t just write code; we architect solutions that scale, perform, and endure.
                             </p>
                             <p>
                                 Our clients range from seed-stage disruptors to Fortune 500 stalwarts, all unified by a desire to push boundaries.
@@ -66,8 +65,8 @@ export default function CompanyPage() {
                             { icon: Zap, title: "Velocity & Precision", desc: "Speed matters, but not at the cost of stability. We move fast and break nothing." },
                             { icon: Globe, title: "Global Perspective", desc: "Our solutions are designed for a borderless world, compliant and culturally aware." },
                             { icon: Users, title: "Client Partnership", desc: "We aren't just vendors; we are an extension of your core team." },
-                        ].map((v, i) => (
-                            <div key={i} className="space-y-4">
+                        ].map((v) => (
+                            <div key={v.title} className="space-y-4">
                                 <div className="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center text-white mb-4">
                                     <v.icon size={24} />
                                 </div>

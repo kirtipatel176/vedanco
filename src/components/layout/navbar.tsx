@@ -35,8 +35,11 @@ export function Navbar() {
 
     // Close mobile menu on route change
     useEffect(() => {
-        setIsMobileMenuOpen(false);
-        setHoveredService(null);
+        const timer = setTimeout(() => {
+            setIsMobileMenuOpen(false);
+            setHoveredService(null);
+        }, 0);
+        return () => clearTimeout(timer);
     }, [pathname]);
 
     const servicesList = Object.values(servicesData);
@@ -151,13 +154,6 @@ export function Navbar() {
                             className="h-9 px-5 rounded-full text-zinc-400 hover:text-white text-[10px] font-bold uppercase tracking-widest hover:bg-white/5"
                         >
                             {user ? "Dashboard" : "Sign In"}
-                        </Button>
-                    </Link>
-                    <Link href="/contact">
-                        <Button
-                            className="h-9 px-5 rounded-full bg-white hover:bg-zinc-200 text-black text-[10px] font-bold uppercase tracking-widest border border-white"
-                        >
-                            Hire Talent
                         </Button>
                     </Link>
                 </div>

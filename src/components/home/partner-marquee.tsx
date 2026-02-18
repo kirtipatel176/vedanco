@@ -1,6 +1,6 @@
 "use client";
 
-import { cn } from "@/lib/utils";
+
 
 const partners = [
     "DEMAZE", "NENO", "SOARBEAM", "SAI BRANDING", "MSPIRE", "THE FOUNDER'S DREAM"

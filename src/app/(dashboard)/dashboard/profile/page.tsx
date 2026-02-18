@@ -31,7 +31,7 @@ export default function ProfilePage() {
                 } else if (result.user) {
                     setProfile(result.user);
                 }
-            } catch (err) {
+            } catch {
                 setError("Failed to load profile");
                 toast.error("Failed to load profile");
             } finally {

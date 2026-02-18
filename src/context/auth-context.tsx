@@ -1,6 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect } from "react";
+import { apiFetch } from "@/services/api";
 
 interface User {
     id: string;
@@ -23,17 +24,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        // Check local storage on mount
-        const storedUser = localStorage.getItem("vedanco_user");
-        if (storedUser) {
+        const verifySession = async () => {
             try {
-                setUser(JSON.parse(storedUser));
-            } catch (e) {
-                console.error("Failed to parse user data", e);
-                localStorage.removeItem("vedanco_user");
+                const data = await apiFetch<{ success: boolean; user: User }>("/api/auth/me");
+                if (data.success && data.user) {
+                    setUser(data.user);
+                } else {
+                    setUser(null);
+                }
+            } catch {
+                setUser(null);
+            } finally {
+                setIsLoading(false);
             }
-        }
-        setIsLoading(false);
+        };
+
+        verifySession();
     }, []);
 
     const login = (userData: User) => {
@@ -43,7 +49,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const logout = async () => {
         try {
-            await fetch("/api/auth/logout", {
+            await apiFetch("/api/auth/logout", {
                 method: "POST",
             });
         } catch (error) {

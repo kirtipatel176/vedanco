@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/auth-context";
+import { apiFetch } from "@/services/api";
 
 export default function SignUpPage() {
     const router = useRouter();
@@ -42,22 +43,19 @@ export default function SignUpPage() {
         }
 
         try {
-            const res = await fetch("/api/auth/register", {
+            const data = await apiFetch("/api/auth/register", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(formData),
             });
 
-            const data = await res.json();
-
-            if (res.ok && data.success) {
+            if (data.success) {
                 login(data.user);
                 router.push("/dashboard");
             } else {
                 setError(data.message || "Registration failed");
             }
-        } catch (_) {
-            setError("Something went wrong. Please try again.");
+        } catch (err: unknown) {
+            setError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
         } finally {
             setIsLoading(false);
         }

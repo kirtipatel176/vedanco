@@ -11,7 +11,6 @@ import {
     Briefcase,
     Calendar,
     Edit2,
-    MapPin,
     Award
 } from "lucide-react";
 

@@ -6,7 +6,6 @@ import {
     SheetHeader,
     SheetTitle,
     SheetDescription,
-    SheetFooter,
 } from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -20,17 +19,20 @@ import {
     Briefcase,
     Paperclip,
     Globe,
-    HelpCircle
+    HelpCircle,
+    ChevronRight,
 } from "lucide-react";
 
 interface Application {
     _id: string;
-    role: string;
-    company: string;
-    location: string;
-    dateApplied: string;
+    jobTitle?: string;
+    // company: string; // Removed as it likely refers to 'currentCompany' or 'Vedanco'
+    currentCompany?: string;
+    city: string;
+    country: string;
+    createdAt: string;
     status: "APPLIED" | "INTERVIEW" | "IN_REVIEW" | "REJECTED" | "OFFER";
-    salary?: string;
+    expectedSalary?: string;
     jobUrl?: string;
     notes?: string;
     // New fields
@@ -52,7 +54,7 @@ export function ApplicationDetailsSheet({
     open,
     onOpenChange,
     application,
-}: ApplicationDetailsSheetProps) {
+}: Readonly<ApplicationDetailsSheetProps>) {
     if (!application) return null;
 
     const getStatusColor = (status: string) => {
@@ -82,11 +84,11 @@ export function ApplicationDetailsSheet({
                             </div>
                             <div>
                                 <SheetTitle className="text-2xl font-display font-black text-black leading-tight tracking-tight">
-                                    {application.role}
+                                    {application.jobTitle || "Unknown Role"}
                                 </SheetTitle>
                                 <SheetDescription className="text-zinc-500 flex items-center gap-2 mt-2 font-medium">
                                     <Building2 size={16} className="text-zinc-400" />
-                                    {application.company}
+                                    {application.currentCompany || "N/A"}
                                 </SheetDescription>
                             </div>
                         </SheetHeader>
@@ -100,7 +102,7 @@ export function ApplicationDetailsSheet({
                                 <div className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Location</div>
                                 <div className="flex items-center gap-2 text-sm font-medium text-black">
                                     <MapPin size={16} className="text-zinc-400" />
-                                    {application.location}
+                                    {application.city}, {application.country}
                                 </div>
                             </div>
 
@@ -108,7 +110,7 @@ export function ApplicationDetailsSheet({
                                 <div className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Applied On</div>
                                 <div className="flex items-center gap-2 text-sm font-medium text-black">
                                     <Calendar size={16} className="text-zinc-400" />
-                                    {new Date(application.dateApplied).toLocaleDateString("en-US", {
+                                    {new Date(application.createdAt).toLocaleDateString("en-US", {
                                         year: "numeric",
                                         month: "long",
                                         day: "numeric",
@@ -116,12 +118,12 @@ export function ApplicationDetailsSheet({
                                 </div>
                             </div>
 
-                            {application.salary && (
+                            {application.expectedSalary && (
                                 <div className="space-y-1.5">
                                     <div className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Salary Expectation</div>
                                     <div className="flex items-center gap-2 text-sm font-medium text-black">
                                         <DollarSign size={16} className="text-zinc-400" />
-                                        {application.salary}
+                                        {application.expectedSalary}
                                     </div>
                                 </div>
                             )}

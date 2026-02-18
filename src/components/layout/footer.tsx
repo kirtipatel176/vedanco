@@ -2,7 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Twitter, Linkedin, Instagram, Github } from "lucide-react";
+
 
 export function Footer() {
     return (
@@ -16,22 +16,56 @@ export function Footer() {
 
             <div className="container mx-auto px-6 md:px-12 relative z-10">
                 <div className="grid grid-cols-1 md:grid-cols-12 gap-12 md:gap-8 mb-24">
-                    {/* Brand / Newsletter */}
+                    {/* Brand / Contact Info */}
                     <div className="md:col-span-4 space-y-8">
                         <Link href="/" className="inline-block mb-4">
-                            <Image
-                                src="/logo.png"
-                                alt="Vedanco Logo"
-                                width={160}
-                                height={50}
-                                className="h-10 w-auto"
-                            />
+                            <div className="flex items-center gap-4">
+                                <Image
+                                    src="/logo.png"
+                                    alt="Vedanco Logo"
+                                    width={48}
+                                    height={48}
+                                    className="h-12 w-auto"
+                                />
+                                <div className="flex flex-col">
+                                    <span className="font-display text-2xl font-black tracking-tighter text-white leading-none">
+                                        VEDANCO
+                                    </span>
+                                    <span className="font-space-mono text-[10px] text-zinc-400 uppercase tracking-widest mt-1">
+                                        Root Here, Rising Worldwide
+                                    </span>
+                                </div>
+                            </div>
                         </Link>
-                        <p className="text-zinc-400 max-w-sm text-sm leading-relaxed">
-                            Pioneering the future of digital enterprise. We build the systems, strategies, and teams that power global market leaders.
-                        </p>
-                        <div className="space-y-4">
-                            <h4 className="font-space-mono text-xs uppercase tracking-widest text-white">Subscribe to Intelligence</h4>
+
+
+
+                        <div className="space-y-6">
+                            <div>
+                                <h4 className="font-space-mono text-xs font-bold text-white uppercase tracking-widest mb-3">📍 Address</h4>
+                                <p className="text-zinc-400 text-sm leading-relaxed">
+                                    InfoCity, Super Mall 1, Office No. 421/C,<br />
+                                    Gandhinagar, Gujarat – India
+                                </p>
+                            </div>
+
+                            <div>
+                                <h4 className="font-space-mono text-xs font-bold text-white uppercase tracking-widest mb-3">📞 Phone</h4>
+                                <p className="text-zinc-400 text-sm leading-relaxed">
+                                    +91 6353 097 642
+                                </p>
+                            </div>
+
+                            <div>
+                                <h4 className="font-space-mono text-xs font-bold text-white uppercase tracking-widest mb-3">✉️ Email</h4>
+                                <p className="text-zinc-400 text-sm leading-relaxed">
+                                    vedanco.official@vedanco.com
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="pt-4">
+                            <h4 className="font-space-mono text-xs uppercase tracking-widest text-white mb-4">Get in Touch</h4>
                             <div className="flex gap-2 max-w-sm">
                                 <Input
                                     placeholder="Email Address"

@@ -9,13 +9,14 @@ import { useAuth } from "@/context/auth-context";
 import { usePathname } from "next/navigation";
 import { useState, useEffect, useTransition, useRef } from "react";
 import { toast } from "sonner";
-import { useRouter } from "next/navigation";
+
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { createApplication } from "@/lib/actions/application.actions";
 import { trackUpload } from "@/lib/actions/upload.actions";
 import { IKContext, IKUpload } from "imagekitio-react";
+import { apiFetch } from "@/services/api";
 import {
     Form,
     FormControl,
@@ -60,7 +61,7 @@ interface ApplicationFormProps {
 export default function ApplicationForm({ jobId: propJobId, jobTitle }: ApplicationFormProps) {
     const { isAuthenticated, user, isLoading: authLoading } = useAuth();
     const pathname = usePathname();
-    const router = useRouter();
+
     const [currentStep, setCurrentStep] = useState(0);
     const [hasApplied, setHasApplied] = useState(false);
     const [isPending, startTransition] = useTransition();
@@ -98,30 +99,24 @@ export default function ApplicationForm({ jobId: propJobId, jobTitle }: Applicat
     // ImageKit Authenticator
     const authenticator = async () => {
         try {
-            const response = await fetch("/api/auth/imagekit");
-
-            if (!response.ok) {
-                const errorText = await response.text();
-                throw new Error(`Authentication failed: ${errorText}`);
-            }
-
-            const data = await response.json();
+            const data = await apiFetch("/api/uploads/auth");
             const { signature, expire, token } = data;
             return { signature, expire, token };
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error("ImageKit Auth Error:", error);
-            throw new Error(`Authentication request failed: ${error.message}`);
+            const message = error instanceof Error ? error.message : "Authentication failed";
+            throw new Error(`Authentication request failed: ${message}`);
         }
     };
 
-    const onError = (err: any) => {
+    const onError = (err: { message?: string }) => {
         console.error("Upload Error:", err);
         setUploadingResume(false);
         setUploadingCoverLetter(false);
         toast.error("File upload failed. Please try again.");
     };
 
-    const onSuccessResume = async (res: any) => {
+    const onSuccessResume = async (res: { url: string; fileId: string; filePath: string }) => {
         console.log("Upload Success:", res);
         setUploadingResume(false);
         form.setValue("resumeUrl", res.url);
@@ -136,7 +131,7 @@ export default function ApplicationForm({ jobId: propJobId, jobTitle }: Applicat
         }
     };
 
-    const onSuccessCoverLetter = async (res: any) => {
+    const onSuccessCoverLetter = async (res: { url: string; fileId: string; filePath: string }) => {
         console.log("Upload Success:", res);
         setUploadingCoverLetter(false);
         form.setValue("coverLetterUrl", res.url);
@@ -175,7 +170,7 @@ export default function ApplicationForm({ jobId: propJobId, jobTitle }: Applicat
 
     const validateStep = async (stepIndex: number) => {
         const fields = getFieldsForStep(stepIndex);
-        const result = await form.trigger(fields as any);
+        const result = await form.trigger(fields as Parameters<typeof form.trigger>[0]);
         return result;
     };
 
@@ -223,14 +218,14 @@ export default function ApplicationForm({ jobId: propJobId, jobTitle }: Applicat
                         toast.error(result.message || "Failed to submit application. Please try again.");
                     }
                 }
-            } catch (error: any) {
+            } catch (error: unknown) {
                 console.error("Submission error:", error);
                 toast.error("An unexpected error occurred. Please try again.");
             }
         });
     };
 
-    const onInvalid = (errors: any) => {
+    const onInvalid = (errors: Record<string, unknown>) => {
         console.error("Form validation errors:", errors);
         const errorFields = Object.keys(errors);
         if (errorFields.length > 0) {
@@ -519,7 +514,7 @@ export default function ApplicationForm({ jobId: propJobId, jobTitle }: Applicat
                                                                 <IKUpload
                                                                     id="resume-upload"
                                                                     fileName="resume.pdf"
-                                                                    validateFile={(file: any) => file.size < 5000000} // 5MB
+                                                                    validateFile={(file: File) => file.size < 5000000} // 5MB
                                                                     tags={["resume", "application"]}
                                                                     useUniqueFileName={true}
                                                                     responseFields={["tags"]}
@@ -580,7 +575,7 @@ export default function ApplicationForm({ jobId: propJobId, jobTitle }: Applicat
                                                                             <IKUpload
                                                                                 id="cover-letter-upload"
                                                                                 fileName="cover_letter.pdf"
-                                                                                validateFile={(file: any) => file.size < 5000000} // 5MB
+                                                                                validateFile={(file: File) => file.size < 5000000} // 5MB
                                                                                 tags={["cover_letter", "application"]}
                                                                                 useUniqueFileName={true}
                                                                                 onError={onError}

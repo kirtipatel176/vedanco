@@ -19,13 +19,17 @@ interface ShareButtonProps {
     text?: string;
 }
 
-export default function ShareButton({ title, text }: ShareButtonProps) {
+export default function ShareButton({ title }: ShareButtonProps) {
     const [isOpen, setIsOpen] = useState(false);
     const [isCopied, setIsCopied] = useState(false);
     const [url, setUrl] = useState("");
 
     useEffect(() => {
-        setUrl(window.location.href);
+        // Use timeout to avoid "setState synchronously within an effect" warning
+        const timer = setTimeout(() => {
+            setUrl(window.location.href);
+        }, 0);
+        return () => clearTimeout(timer);
     }, []);
 
     const handleCopy = async () => {

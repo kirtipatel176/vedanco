@@ -33,7 +33,7 @@ export default function AuthLayout({
                 <div className="relative z-10 max-w-xl">
                     <Quote className="w-10 h-10 text-white/30 mb-6" />
                     <blockquote className="font-display font-bold text-3xl md:text-4xl leading-tight mb-8">
-                        "Vedanco transformed our digital presence. The attention to detail and engineering quality is unmatched in the industry."
+                        &ldquo;Vedanco transformed our digital presence. The attention to detail and engineering quality is unmatched in the industry.&rdquo;
                     </blockquote>
                     <div className="flex items-center gap-4">
                         <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center text-black font-bold">

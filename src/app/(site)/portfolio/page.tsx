@@ -1,7 +1,7 @@
 "use client";
 
 import { portfolioData } from "@/data/portfolio-data";
-import { Button } from "@/components/ui/button";
+
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import Image from "next/image";
@@ -102,9 +102,20 @@ export default function PortfolioPage() {
                                             {project.client}
                                         </span>
                                     </div>
-                                    <p className="text-zinc-400 text-sm line-clamp-2">
+                                    <p className="text-zinc-400 text-sm line-clamp-2 mb-4">
                                         {project.description}
                                     </p>
+                                    {project.website && (
+                                        <a
+                                            href={project.website}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-white hover:text-accent-blue transition-colors z-20 relative"
+                                            onClick={(e) => e.stopPropagation()}
+                                        >
+                                            Visit Website <ArrowUpRight size={14} />
+                                        </a>
+                                    )}
                                 </div>
                             </Link>
                         </motion.div>

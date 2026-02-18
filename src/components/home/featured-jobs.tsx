@@ -2,46 +2,28 @@
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Card } from "@/components/ui/card";
 import { MapPin, Briefcase, ArrowRight, ExternalLink } from "lucide-react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
-const jobs = [
-    {
-        id: 1,
-        title: "Full Stack Developer",
-        department: "IT Services",
-        type: "Full-Time",
-        location: "Remote / Ahmedabad",
-        badgeVariant: "it",
-        accent: "text-accent-blue",
-        glow: "shadow-accent-blue/20",
-    },
-    {
-        id: 2,
-        title: "AI / ML Engineer",
-        department: "AI & Automation",
-        type: "Full-Time",
-        location: "Remote",
-        badgeVariant: "ai",
-        accent: "text-accent-teal",
-        glow: "shadow-accent-teal/20",
-    },
-    {
-        id: 3,
-        title: "Social Media Manager",
-        department: "Digital Marketing",
-        type: "Full-Time",
-        location: "Ahmedabad",
-        badgeVariant: "marketing",
-        accent: "text-accent-rose",
-        glow: "shadow-accent-rose/20",
-    },
-];
+interface Job {
+    _id?: string;
+    slug: string;
+    title: string;
+    department: string;
+    location: string;
+    type: string;
+    [key: string]: unknown;
+}
 
-export function FeaturedJobs() {
+interface FeaturedJobsProps {
+    jobs?: Job[];
+}
+
+export function FeaturedJobs({ jobs = [] }: FeaturedJobsProps) {
+    if (!jobs || jobs.length === 0) return null;
+
     return (
         <section className="bg-white py-24 md:py-32 relative overflow-hidden">
             {/* Background Elements - Subtle Gradient for Light Theme */}
@@ -73,13 +55,13 @@ export function FeaturedJobs() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     {jobs.map((job, index) => (
                         <motion.div
-                            key={job.id}
+                            key={job._id || index}
                             initial={{ opacity: 0, y: 20 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                             transition={{ delay: index * 0.1 }}
                         >
-                            <Link href={`/careers/${job.id}`} className="block h-full">
+                            <Link href={`/careers/${job.slug}`} className="block h-full">
                                 <div className={cn(
                                     "bg-white rounded-2xl border border-black/5 p-8",
                                     "hover:border-accent-blue/30 transition-all duration-300 group h-full flex flex-col justify-between",
@@ -87,7 +69,7 @@ export function FeaturedJobs() {
                                 )}>
                                     <div className="space-y-6">
                                         <div className="flex justify-between items-start">
-                                            <Badge variant={job.badgeVariant as any} className="uppercase tracking-wider text-[10px] bg-black/5 border-black/5 text-black/70">
+                                            <Badge variant="outline" className="uppercase tracking-wider text-[10px] bg-black/5 border-black/5 text-black/70">
                                                 {job.department}
                                             </Badge>
                                             <div className="w-8 h-8 rounded-full bg-black/5 flex items-center justify-center text-zinc-400 group-hover:text-accent-blue group-hover:bg-accent-blue/10 transition-colors">
@@ -95,7 +77,7 @@ export function FeaturedJobs() {
                                             </div>
                                         </div>
 
-                                        <h3 className="font-display font-bold text-2xl text-black group-hover:text-accent-blue transition-colors">
+                                        <h3 className="font-display font-bold text-2xl text-black group-hover:text-accent-blue transition-colors line-clamp-2">
                                             {job.title}
                                         </h3>
 

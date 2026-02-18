@@ -6,7 +6,11 @@ import { FeaturedJobs } from "@/components/home/featured-jobs";
 import { Testimonials } from "@/components/home/testimonials";
 import { PortfolioSection } from "@/components/home/portfolio-section";
 
-export default function Home() {
+import { getJobs } from "@/lib/actions/job.actions";
+
+export default async function Home() {
+  const featuredJobs = await getJobs({ status: "active" }, 6);
+
   return (
     <main>
       <Hero />
@@ -14,7 +18,7 @@ export default function Home() {
       <ServicesGrid />
       <PortfolioSection />
       <StatsStrip />
-      <FeaturedJobs />
+      <FeaturedJobs jobs={featuredJobs} />
       <Testimonials />
     </main>
   );

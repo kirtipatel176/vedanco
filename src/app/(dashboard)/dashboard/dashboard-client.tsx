@@ -1,87 +1,62 @@
 "use client";
 
-import { useAuth } from "@/context/auth-context";
-
-import { useState, useTransition } from "react";
-import { IJob } from "@/models/Job";
+import { useState } from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, DollarSign, Calendar, Plus, Pencil, Trash2, MoreHorizontal } from "lucide-react";
+import { MapPin, DollarSign, Calendar } from "lucide-react";
 import { ApplicationDialog } from "@/components/dashboard/ApplicationDialog";
 import { JobDialog } from "@/components/dashboard/JobDialog";
-import { createJob, updateJob, deleteJob } from "@/lib/actions/job.actions";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { IJob } from "@/models/Job";
 
-interface DashboardClientProps {
-    initialJobs: any[];
+interface JobItem {
+    _id?: string;
+    id?: string;
+    title: string;
+    department: string;
+    location: string;
+    type: "Full-time" | "Part-time" | "Contract" | "Remote" | "Internship";
+    status: "active" | "closed" | "draft";
+    salaryRange?: string;
+    description: string;
+    createdAt: string;
+    requirements?: string[];
 }
 
-export default function DashboardClient({ initialJobs }: DashboardClientProps) {
-    const { user } = useAuth();
-    const [jobs, setJobs] = useState(initialJobs);
+interface DashboardClientProps {
+    initialJobs: JobItem[];
+}
+
+export default function DashboardClient({ initialJobs }: Readonly<DashboardClientProps>) {
+    const jobs = initialJobs;
 
     // Application State
-    const [selectedJobForApp, setSelectedJobForApp] = useState<any | null>(null);
+    const [selectedJobForApp, setSelectedJobForApp] = useState<JobItem | null>(null);
     const [isAppDialogOpen, setIsAppDialogOpen] = useState(false);
 
-    // Job Management State
-    const [selectedJobForEdit, setSelectedJobForEdit] = useState<any | null>(null);
+    // Job Management State (dialogs kept for future use)
+    const [selectedJobForEdit] = useState<JobItem | null>(null);
     const [isJobDialogOpen, setIsJobDialogOpen] = useState(false);
-    const [jobDialogMode, setJobDialogMode] = useState<"add" | "edit">("add");
+    const [jobDialogMode] = useState<"add" | "edit">("add");
 
-    const [isPending, startTransition] = useTransition();
-
-    const handleApply = (job: any) => {
+    const handleApply = (job: JobItem) => {
         setSelectedJobForApp(job);
         setIsAppDialogOpen(true);
     };
 
-    const handleCreateJob = () => {
-        setSelectedJobForEdit(null);
-        setJobDialogMode("add");
-        setIsJobDialogOpen(true);
-    };
-
-    const handleEditJob = (job: any) => {
-        setSelectedJobForEdit(job);
-        setJobDialogMode("edit");
-        setIsJobDialogOpen(true);
-    };
-
-    const handleDeleteJob = async (id: string) => {
-        if (confirm("Are you sure you want to delete this job?")) {
-            try {
-                // Optimistic update
-                setJobs(prev => prev.filter(j => j._id !== id));
-                await deleteJob(id);
-            } catch (error) {
-                console.error("Failed to delete job", error);
-                alert("Failed to delete job");
-                // Revert if needed or fetch jobs again?
-            }
-        }
-    };
-
-    const handleJobSubmit = async (values: any) => {
+    const handleJobSubmit = async (values: Record<string, string | string[]>) => {
         try {
             // Process requirements string to array
+            const requirementsRaw = typeof values.requirements === "string" ? values.requirements : "";
             const jobData = {
                 ...values,
-                requirements: values.requirements
-                    ? values.requirements.split('\n').filter((req: string) => req.trim() !== '')
+                requirements: requirementsRaw
+                    ? requirementsRaw.split('\n').filter((req: string) => req.trim() !== '')
                     : []
             };
 
-            if (jobDialogMode === "add") {
-                const newJob = await createJob(jobData);
-                setJobs([newJob, ...jobs]);
-                alert("Job created successfully!");
-            } else {
-                const updated = await updateJob(selectedJobForEdit._id, jobData);
-                setJobs(jobs.map(j => j._id === updated._id ? updated : j));
-                alert("Job updated successfully!");
-            }
+            // Job management is reserved for admin users
+            console.log("Job data prepared:", jobData);
             setIsJobDialogOpen(false);
         } catch (error) {
             console.error("Error saving job:", error);
@@ -89,40 +64,17 @@ export default function DashboardClient({ initialJobs }: DashboardClientProps) {
         }
     };
 
+    const getBadgeVariant = (status: string): "default" | "secondary" | "destructive" => {
+        if (status === "active") return "default";
+        if (status === "draft") return "secondary";
+        return "destructive";
+    };
+
     return (
         <>
-            <div className="flex justify-between items-center mb-6">
-                <div></div> {/* Spacer if needed */}
-                <div></div> {/* Spacer if needed */}
-                <div></div> {/* Spacer if needed */}
-                {/* Job creation disabled for standard users */}
-                {/* <Button onClick={handleCreateJob} className="bg-black text-white hover:bg-zinc-800">
-                    <Plus className="w-4 h-4 mr-2" />
-                    Create New Job
-                </Button> */}
-            </div>
-
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {jobs.map((job) => (
                     <Card key={job._id || job.id} className="flex flex-col border-dashboard-border/50 shadow-sm hover:shadow-md transition-all relative group">
-                        {/* <div className="absolute top-3 right-3 z-10">
-                            <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                    <Button variant="ghost" size="icon" className="h-8 w-8">
-                                        <MoreHorizontal className="h-4 w-4" />
-                                    </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end" className="bg-white">
-                                    <DropdownMenuItem onClick={() => handleEditJob(job)}>
-                                        <Pencil className="mr-2 h-4 w-4" /> Edit
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem onClick={() => handleDeleteJob(job._id || job.id)} className="text-red-600 focus:text-red-600">
-                                        <Trash2 className="mr-2 h-4 w-4" /> Delete
-                                    </DropdownMenuItem>
-                                </DropdownMenuContent>
-                            </DropdownMenu>
-                        </div> */}
-
                         <CardHeader>
                             <div className="flex justify-between items-start pr-8">
                                 <div>
@@ -132,8 +84,10 @@ export default function DashboardClient({ initialJobs }: DashboardClientProps) {
                             </div>
                             <div className="mt-2 flex gap-2">
                                 <Badge variant="outline" className="text-dashboard-text-secondary border-dashboard-border bg-dashboard-surface">{job.type}</Badge>
-                                <Badge variant={job.status === 'active' ? 'default' : job.status === 'draft' ? 'secondary' : 'destructive'}
-                                    className={job.status === 'active' ? 'bg-green-100 text-green-800 border-green-200' : ''}>
+                                <Badge
+                                    variant={getBadgeVariant(job.status)}
+                                    className={job.status === 'active' ? 'bg-green-100 text-green-800 border-green-200' : ''}
+                                >
                                     {job.status}
                                 </Badge>
                             </div>
@@ -174,14 +128,11 @@ export default function DashboardClient({ initialJobs }: DashboardClientProps) {
                 initialValues={selectedJobForApp ? {
                     role: selectedJobForApp.title,
                     company: "Vedanco - " + selectedJobForApp.department,
-                    location: selectedJobForApp.location,
-                    salary: selectedJobForApp.salaryRange || "",
                     status: "APPLIED",
                     dateApplied: new Date().toISOString().split("T")[0],
-                    jobUrl: "",
                     notes: ""
                 } : undefined}
-                onSubmit={async (data) => {
+                onSubmit={async () => {
                     alert("This is a preview of the application form.");
                     setIsAppDialogOpen(false);
                 }}
@@ -192,7 +143,7 @@ export default function DashboardClient({ initialJobs }: DashboardClientProps) {
                 open={isJobDialogOpen}
                 onOpenChange={setIsJobDialogOpen}
                 mode={jobDialogMode}
-                initialValues={selectedJobForEdit}
+                initialValues={selectedJobForEdit as Partial<IJob> | null}
                 onSubmit={handleJobSubmit}
             />
         </>

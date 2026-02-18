@@ -58,7 +58,7 @@ export async function getApplicationStats(email?: string) {
     }
 }
 
-export async function createApplication(data: any) {
+export async function createApplication(data: Partial<IApplication>) {
     try {
         await connectToDatabase();
 
@@ -83,7 +83,7 @@ export async function createApplication(data: any) {
         // but might lead to accidental deletion in 24h if we are unlucky.
         // Ideally we wrap this in try-catch or fire-and-forget.
         try {
-            const urlsToKeep = [];
+            const urlsToKeep: string[] = [];
             if (data.resumeUrl) urlsToKeep.push(data.resumeUrl);
             if (data.coverLetterUrl) urlsToKeep.push(data.coverLetterUrl);
             // Add other file URLs if any
@@ -101,12 +101,13 @@ export async function createApplication(data: any) {
         revalidatePath("/dashboard/admin/applications");
 
         return { success: true, data: JSON.parse(JSON.stringify(newApplication)), message: "Application submitted successfully." };
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error("Error creating application:", error);
+        const message = error instanceof Error ? error.message : "Failed to submit application";
         return {
             success: false,
             error: "SubmissionFailed",
-            message: error.message || "Failed to submit application"
+            message
         };
     }
 }

@@ -4,10 +4,10 @@ import CountUp from "react-countup";
 import { useInView } from "react-intersection-observer";
 
 const stats = [
-    { label: "Global Brands", value: 500, suffix: "+" },
-    { label: "Service Verticals", value: 6, suffix: "" },
-    { label: "Years Experience", value: 13, suffix: "+" },
-    { label: "Audience Reach", value: 10, suffix: "M+" },
+    { label: "Global Brands", value: 50, suffix: "+" },
+    { label: "Service Verticals", value: 3, suffix: "+" },
+    { label: "Years Experience", value: 3, suffix: "+" },
+    { label: "Complete Projects", value: 100, suffix: "+" },
 ];
 
 export function StatsStrip() {

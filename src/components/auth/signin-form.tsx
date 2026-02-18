@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/context/auth-context";
+import { apiFetch } from "@/services/api";
 
 export default function SignInForm() {
     const [email, setEmail] = useState("demo@vedanco.com");
@@ -25,22 +26,20 @@ export default function SignInForm() {
         setError("");
 
         try {
-            const res = await fetch("/api/auth/login", {
+            const data = await apiFetch("/api/auth/login", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ email, password }),
             });
 
-            const data = await res.json();
-
-            if (res.ok && data.success) {
+            if (data.success) {
                 login(data.user);
                 router.push(redirectUrl);
             } else {
                 setError(data.message || "Invalid credentials");
             }
-        } catch (_) {
-            setError("Something went wrong. Please try again.");
+        } catch (err: unknown) {
+            const message = err instanceof Error ? err.message : "Something went wrong. Please try again.";
+            setError(message);
         } finally {
             setIsLoading(false);
         }
@@ -97,7 +96,7 @@ export default function SignInForm() {
             </form>
 
             <div className="mt-8 text-center text-sm text-zinc-500 font-dm-sans">
-                Don't have an account?{" "}
+                Don&apos;t have an account?{" "}
                 <Link href={`/signup?redirect=${encodeURIComponent(redirectUrl)}`} className="font-bold text-black hover:underline underline-offset-4">
                     Create Account
                 </Link>

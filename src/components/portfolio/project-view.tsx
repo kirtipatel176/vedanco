@@ -101,7 +101,7 @@ export default function ProjectView({ project }: ProjectViewProps) {
                         transition={{ duration: 0.6 }}
                         className="text-3xl md:text-5xl font-display font-medium leading-tight mb-24"
                     >
-                        "{project.description}"
+                        &ldquo;{project.description}&rdquo;
                     </motion.p>
 
                     <div className="grid md:grid-cols-2 gap-16">
@@ -165,7 +165,7 @@ export default function ProjectView({ project }: ProjectViewProps) {
                 <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-end gap-12">
                     <div>
                         <h4 className="text-white/40 uppercase tracking-widest font-bold mb-4">Next Project</h4>
-                        <h2 className="text-3xl md:text-5xl font-display font-bold text-white">Let's create something together.</h2>
+                        <h2 className="text-3xl md:text-5xl font-display font-bold text-white">Let&apos;s create something together.</h2>
                     </div>
                     <Link
                         href="/contact"

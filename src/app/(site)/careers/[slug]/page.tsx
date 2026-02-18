@@ -72,8 +72,7 @@ export default async function JobDetailsPage({ params }: { params: Promise<{ slu
                         {/* Description */}
                         <section>
                             <h2 className="font-display font-bold text-2xl text-bg-primary mb-6 flex items-center gap-3">
-                                <span className="w-8 h-1 bg-accent-gold rounded-full"></span>
-                                About the Role
+                                <span className="w-8 h-1 bg-accent-gold rounded-full" /> About the Role
                             </h2>
                             <div className="prose prose-lg text-gray-600 max-w-none whitespace-pre-wrap">
                                 {job.description}
@@ -84,12 +83,11 @@ export default async function JobDetailsPage({ params }: { params: Promise<{ slu
                         {job.requirements && job.requirements.length > 0 && (
                             <section>
                                 <h2 className="font-display font-bold text-2xl text-bg-primary mb-6 flex items-center gap-3">
-                                    <span className="w-8 h-1 bg-accent-gold rounded-full"></span>
-                                    Requirements
+                                    <span className="w-8 h-1 bg-accent-gold rounded-full" /> Requirements
                                 </h2>
                                 <ul className="grid gap-4">
                                     {job.requirements.map((req: string, i: number) => (
-                                        <li key={i} className="flex gap-4 p-4 bg-white rounded-xl border border-gray-100 shadow-sm">
+                                        <li key={`${i}-${req.substring(0, 10)}`} className="flex gap-4 p-4 bg-white rounded-xl border border-gray-100 shadow-sm">
                                             <CheckCircle2 className="w-6 h-6 text-accent-gold shrink-0 mt-0.5" />
                                             <span className="text-gray-700">{req}</span>
                                         </li>
@@ -129,7 +127,7 @@ export default async function JobDetailsPage({ params }: { params: Promise<{ slu
                                 Ready to Join Us?
                             </h2>
                             <p className="text-xl text-gray-500 max-w-2xl mx-auto leading-relaxed">
-                                Start your journey effectively. We can't wait to see what you bring to the table.
+                                Start your journey effectively. We can&apos;t wait to see what you bring to the table.
                             </p>
                         </div>
                         <ApplicationForm jobId={job._id} jobTitle={job.title} />

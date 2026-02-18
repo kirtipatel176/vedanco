@@ -4,7 +4,7 @@ import { servicesData } from "@/data/services-data";
 import { notFound } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowRight, CheckCircle2, ArrowUpRight, Plus, Minus } from "lucide-react";
+import { ArrowRight, CheckCircle2, Plus } from "lucide-react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
@@ -231,7 +231,7 @@ export default function ServicePage({ params }: { params: Promise<{ slug: string
                                 Systematic <br /> <span className="text-zinc-500">Execution</span>
                             </h2>
                             <p className="text-zinc-400 text-lg leading-relaxed mb-8">
-                                We work in public. You'll know exactly what's happening, when it's happening, and why.
+                                We work in public. You&apos;ll know exactly what&apos;s happening, when it&apos;s happening, and why.
                             </p>
                             <Button variant="outline" className="rounded-full border-white/10 text-white hover:bg-white/5">
                                 Download Process Guide

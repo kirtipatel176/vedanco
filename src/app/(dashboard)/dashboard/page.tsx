@@ -12,7 +12,7 @@ export default async function DashboardOverview() {
                     Dashboard Overview
                 </h1>
                 <p className="text-dashboard-text-secondary mt-2">
-                    Welcome back! Here's what's happening today.
+                    Welcome back! Here&apos;s what&apos;s happening today.
                 </p>
             </div>
 

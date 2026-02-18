@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import {
@@ -22,7 +22,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Upload, CheckCircle, Loader2 } from "lucide-react";
+import { Upload, CheckCircle } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/context/auth-context";
 
@@ -30,7 +30,7 @@ import { useAuth } from "@/context/auth-context";
 const formSchema = z.object({
     // Personal
     fullName: z.string().min(2, "Full Name is required"),
-    email: z.string().email("Invalid email address"),
+    email: z.email("Invalid email address"),
     phone: z.string().min(5, "Phone number is required"),
     city: z.string().min(2, "City is required"),
     country: z.string().min(2, "Country is required"),
@@ -59,11 +59,13 @@ const formSchema = z.object({
     notes: z.string().optional(),
 });
 
+type FormValues = z.infer<typeof formSchema>;
+
 interface ApplicationDialogProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
-    onSubmit: (values: z.infer<typeof formSchema>) => void;
-    initialValues?: Partial<z.infer<typeof formSchema>> | null;
+    onSubmit: (values: FormValues) => void;
+    initialValues?: Partial<FormValues> | null;
     mode: "add" | "edit";
 }
 
@@ -80,12 +82,12 @@ export function ApplicationDialog({
     onSubmit,
     initialValues,
     mode,
-}: ApplicationDialogProps) {
+}: Readonly<ApplicationDialogProps>) {
     const { user } = useAuth();
     const [currentStep, setCurrentStep] = useState(0);
 
-    const form = useForm<z.infer<typeof formSchema>>({
-        resolver: zodResolver(formSchema),
+    const form = useForm<FormValues>({
+        resolver: zodResolver(formSchema) as Resolver<FormValues>,
         defaultValues: {
             fullName: "",
             email: "",
@@ -152,12 +154,13 @@ export function ApplicationDialog({
             }
             setCurrentStep(0);
         }
-    }, [initialValues, form, open, user]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [open]);
 
     // Validation for steps
     const validateStep = async (stepIndex: number) => {
         const fields = getFieldsForStep(stepIndex);
-        const result = await form.trigger(fields as any);
+        const result = await form.trigger(fields as Parameters<typeof form.trigger>[0]);
         return result;
     };
 
@@ -183,7 +186,7 @@ export function ApplicationDialog({
     };
 
     // Mock file upload
-    const handleFileUpload = (field: any) => {
+    const handleFileUpload = (field: keyof FormValues) => {
         toast.promise(new Promise(resolve => setTimeout(resolve, 1000)), {
             loading: 'Uploading...',
             success: () => {
@@ -194,9 +197,9 @@ export function ApplicationDialog({
         });
     };
 
-    const handleSubmit = async (values: z.infer<typeof formSchema>) => {
+    const handleSubmit = (values: FormValues) => {
         try {
-            await onSubmit(values);
+            onSubmit(values);
             // Success handling is done in parent or onSubmit prop
         } catch (error) {
             console.error("Submission error:", error);
@@ -226,15 +229,17 @@ export function ApplicationDialog({
                             const isCompleted = index < currentStep;
                             const isCurrent = index === currentStep;
 
+                            let stepClassName = 'bg-white border-2 border-gray-200 text-gray-400';
+                            if (isCompleted) {
+                                stepClassName = 'bg-black text-white ring-4 ring-white';
+                            } else if (isCurrent) {
+                                stepClassName = 'bg-white border-2 border-black text-black ring-4 ring-black/5 shadow-lg scale-110';
+                            }
+
                             return (
                                 <div key={step.id} className="flex flex-col items-center bg-white px-2 z-10">
                                     <div
-                                        className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold transition-all duration-300 ${isCompleted
-                                                ? 'bg-black text-white ring-4 ring-white'
-                                                : isCurrent
-                                                    ? 'bg-white border-2 border-black text-black ring-4 ring-black/5 shadow-lg scale-110'
-                                                    : 'bg-white border-2 border-gray-200 text-gray-400'
-                                            }`}
+                                        className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold transition-all duration-300 ${stepClassName}`}
                                     >
                                         {isCompleted ? <CheckCircle className="w-4 h-4" /> : index + 1}
                                     </div>
@@ -384,7 +389,10 @@ export function ApplicationDialog({
                                                     </div>
                                                 ) : (
                                                     <div
+                                                        role="button"
+                                                        tabIndex={0}
                                                         onClick={() => handleFileUpload('resumeUrl')}
+                                                        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleFileUpload('resumeUrl'); }}
                                                         className="border-2 border-dashed border-gray-200 rounded-xl p-8 text-center hover:bg-gray-50 hover:border-black/20 cursor-pointer transition-all duration-300 group"
                                                     >
                                                         <div className="w-12 h-12 rounded-full bg-gray-100 mx-auto mb-3 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
@@ -410,7 +418,13 @@ export function ApplicationDialog({
                                                             <Button type="button" variant="ghost" size="sm" onClick={() => field.onChange("")} className="text-red-500 h-8 w-8 p-0"><span className="sr-only">Remove</span>×</Button>
                                                         </div>
                                                     ) : (
-                                                        <div onClick={() => handleFileUpload('coverLetterUrl')} className="border border-dashed border-gray-300 rounded-lg p-4 text-center hover:bg-gray-50 cursor-pointer transition-colors bg-white">
+                                                        <div
+                                                            role="button"
+                                                            tabIndex={0}
+                                                            onClick={() => handleFileUpload('coverLetterUrl')}
+                                                            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleFileUpload('coverLetterUrl'); }}
+                                                            className="border border-dashed border-gray-300 rounded-lg p-4 text-center hover:bg-gray-50 cursor-pointer transition-colors bg-white"
+                                                        >
                                                             <p className="text-sm text-gray-600 font-medium">+ Upload Cover Letter</p>
                                                         </div>
                                                     )}

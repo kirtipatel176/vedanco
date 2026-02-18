@@ -1,20 +1,16 @@
 "use client";
 
 import { useRef } from "react";
-import { Button } from "@/components/ui/button";
-import { motion, useScroll, useTransform } from "framer-motion";
-import Image from "next/image";
+
+import { motion } from "framer-motion";
+
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 
 export function Hero() {
     const containerRef = useRef<HTMLDivElement>(null);
-    const { scrollYProgress } = useScroll({
-        target: containerRef,
-        offset: ["start start", "end start"],
-    });
 
-    const y = useTransform(scrollYProgress, [0, 1], ["0%", "20%"]);
+
 
     return (
         <section
@@ -53,7 +49,7 @@ export function Hero() {
                     className="mt-32 md:mt-48 max-w-sm"
                 >
                     <p className="font-dm-sans text-sm md:text-base text-zinc-400 leading-relaxed">
-                        "Vedanco isn't just an agency. It's an <span className="text-white italic font-playfair">intelligence engine</span> designed to scale global enterprises through precision automation and strategic branding."
+                        &quot;Vedanco isn&apos;t just an agency. It&apos;s an <span className="text-white italic font-playfair">intelligence engine</span> designed to scale global enterprises through precision automation and strategic branding.&quot;
                     </p>
                 </motion.div>
 
@@ -78,7 +74,7 @@ export function Hero() {
                         transition={{ duration: 0.8, delay: 0.6 }}
                         className="mb-2 md:mb-4"
                     >
-                        <Link href="/start">
+                        <Link href="/contact">
                             <button className="group relative w-32 h-32 md:w-40 md:h-40 rounded-full bg-white flex items-center justify-center transition-transform hover:scale-105">
                                 <span className="absolute text-[10px] font-bold uppercase tracking-widest text-black top-8">
                                     Start Build
