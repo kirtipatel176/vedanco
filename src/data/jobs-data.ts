@@ -1,16 +1,4 @@
-export type JobBox = {
-    id: string;
-    title: string;
-    department: string;
-    type: string;
-    location: string;
-    postedDate: string;
-    description: string;
-    responsibilities: string[];
-    requirements: string[];
-    niceToHave: string[];
-    salaryRange?: string;
-};
+import { JobBox } from "@/types";
 
 export const jobsData: JobBox[] = [
     {

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Playfair_Display, DM_Sans, Space_Mono, Syne, Space_Grotesk } from "next/font/google";
 import { AuthProvider } from "@/context/auth-context";
+import { Toaster } from "sonner";
 import "./globals.css";
 
 const playfair = Playfair_Display({
@@ -40,12 +41,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
         className={`${playfair.variable} ${dmSans.variable} ${spaceMono.variable} ${syne.variable} ${spaceGrotesk.variable} antialiased font-sans bg-primary text-primary flex flex-col min-h-screen`}
       >
         <AuthProvider>
           {children}
+          <Toaster />
         </AuthProvider>
       </body>
     </html>

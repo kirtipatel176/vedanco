@@ -7,6 +7,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/context/auth-context";
 
 const navItems = [
     { label: "Active Jobs", icon: LayoutDashboard, href: "/dashboard" },
@@ -17,6 +18,7 @@ const navItems = [
 export function MobileNav() {
     const pathname = usePathname();
     const [open, setOpen] = useState(false);
+    const { logout } = useAuth();
 
     return (
         <Sheet open={open} onOpenChange={setOpen}>
@@ -26,7 +28,7 @@ export function MobileNav() {
                     <span className="sr-only">Toggle menu</span>
                 </Button>
             </SheetTrigger>
-            <SheetContent side="left" className="w-[300px] sm:w-[400px] p-0 bg-dashboard-surface border-r border-dashboard-border">
+            <SheetContent side="left" className="w-[300px] sm:w-[400px] p-0 bg-dashboard-surface border-r border-dashboard-border flex flex-col">
                 <SheetHeader className="p-6 border-b border-dashboard-border/50 text-left">
                     <SheetTitle className="font-display font-bold text-xl tracking-tight text-dashboard-text-primary">
                         VEDANCO
@@ -63,14 +65,16 @@ export function MobileNav() {
                     })}
                 </nav>
                 <div className="p-4 border-t border-dashboard-border/50 bg-dashboard-surface/50 mt-auto">
-                    <Link
-                        href="/logout"
-                        className="flex items-center gap-3 px-3 py-3 rounded-lg text-sm font-medium text-dashboard-text-muted hover:text-dashboard-error hover:bg-dashboard-error-light transition-colors"
-                        onClick={() => setOpen(false)}
+                    <button
+                        onClick={() => {
+                            logout();
+                            setOpen(false);
+                        }}
+                        className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-sm font-medium text-dashboard-text-muted hover:text-dashboard-error hover:bg-dashboard-error-light transition-colors"
                     >
                         <LogOut size={20} />
                         <span>Sign Out</span>
-                    </Link>
+                    </button>
                 </div>
             </SheetContent>
         </Sheet>

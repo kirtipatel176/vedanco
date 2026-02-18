@@ -1,4 +1,4 @@
-import { portfolioData } from "@/lib/portfolio-data";
+import { portfolioData } from "@/data/portfolio-data";
 import { notFound } from "next/navigation";
 import ProjectView from "@/components/portfolio/project-view";
 

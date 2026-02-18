@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/context/auth-context";
 
 const navItems = [
     { label: "Active Jobs", icon: LayoutDashboard, href: "/dashboard" },
@@ -21,6 +22,7 @@ const navItems = [
 ];
 
 export function Sidebar() {
+    const { user, logout } = useAuth();
     const pathname = usePathname();
     const [isCollapsed, setIsCollapsed] = useState(false);
 
@@ -81,16 +83,22 @@ export function Sidebar() {
 
             {/* Footer */}
             <div className="p-4 border-t border-dashboard-border/50">
-                <Link
-                    href="/logout"
+                {!isCollapsed && user && (
+                    <div className="mb-4 px-3">
+                        <div className="text-xs font-bold text-dashboard-text-muted uppercase tracking-wider mb-1">Account</div>
+                        <div className="text-sm font-medium text-dashboard-text-primary truncate">{user.email}</div>
+                    </div>
+                )}
+                <button
+                    onClick={() => logout()}
                     className={cn(
-                        "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-dashboard-text-muted hover:text-dashboard-error hover:bg-dashboard-error-light transition-colors",
+                        "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-dashboard-text-muted hover:text-dashboard-error hover:bg-dashboard-error-light transition-colors",
                         isCollapsed && "justify-center"
                     )}
                 >
                     <LogOut size={20} />
                     {!isCollapsed && <span>Sign Out</span>}
-                </Link>
+                </button>
             </div>
         </aside>
     );

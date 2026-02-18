@@ -85,6 +85,26 @@
 
   --color-dashboard-error: #EF4444;
   --color-dashboard-error-light: #FEF2F2;
+
+  /* Shadcn / Standard UI Variables Mapping for Light Dashboard */
+  --color-card: #FFFFFF;
+  --color-card-foreground: #0F172A;
+  --color-popover: #FFFFFF;
+  --color-popover-foreground: #0F172A;
+  --color-primary: #000000;
+  --color-primary-foreground: #FFFFFF;
+  --color-secondary: #F3F4F6;
+  --color-secondary-foreground: #0F172A;
+  --color-muted: #F3F4F6;
+  --color-muted-foreground: #64748B;
+  --color-accent: #F3F4F6;
+  --color-accent-foreground: #0F172A;
+  --color-destructive: #EF4444;
+  --color-destructive-foreground: #FFFFFF;
+
+  --color-border: #E2E8F0;
+  --color-input: #E2E8F0;
+  --color-ring: #0F172A;
 }
 
 :root {

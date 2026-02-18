@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { jobsData } from "@/lib/jobs-data";
+import { jobsData } from "@/data/jobs-data";
 
 export async function GET() {
     // In a real app, fetching from MongoDB

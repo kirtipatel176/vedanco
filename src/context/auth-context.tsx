@@ -6,7 +6,6 @@ interface User {
     id: string;
     name: string;
     email: string;
-    role: string;
 }
 
 interface AuthContextType {
@@ -42,9 +41,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         localStorage.setItem("vedanco_user", JSON.stringify(userData));
     };
 
-    const logout = () => {
+    const logout = async () => {
+        try {
+            await fetch("/api/auth/logout", {
+                method: "POST",
+            });
+        } catch (error) {
+            console.error("Logout failed", error);
+        }
         setUser(null);
         localStorage.removeItem("vedanco_user");
+        window.location.href = "/";
     };
 
     return (

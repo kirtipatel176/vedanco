@@ -8,7 +8,8 @@ import { cn } from "@/lib/utils";
 import { Menu, X, ChevronDown } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { servicesData } from "@/lib/services-data";
+import { servicesData } from "@/data/services-data";
+import { useAuth } from "@/context/auth-context";
 
 
 const navLinks = [
@@ -22,6 +23,7 @@ export function Navbar() {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [hoveredService, setHoveredService] = useState<string | null>(null);
     const pathname = usePathname();
+    const { user } = useAuth();
 
     useEffect(() => {
         const handleScroll = () => {
@@ -143,12 +145,12 @@ export function Navbar() {
                             Careers
                         </Button>
                     </Link>
-                    <Link href="/signin">
+                    <Link href={user ? "/dashboard" : "/signin"}>
                         <Button
                             variant="ghost"
                             className="h-9 px-5 rounded-full text-zinc-400 hover:text-white text-[10px] font-bold uppercase tracking-widest hover:bg-white/5"
                         >
-                            Sign In
+                            {user ? "Dashboard" : "Sign In"}
                         </Button>
                     </Link>
                     <Link href="/contact">
@@ -169,39 +171,112 @@ export function Navbar() {
                 </button>
 
                 {/* Mobile Menu */}
-                <div
-                    className={cn(
-                        "fixed inset-0 bg-black z-40 flex flex-col items-center justify-center space-y-8 transition-transform duration-500 ease-in-out md:hidden",
-                        isMobileMenuOpen ? "translate-x-0" : "translate-x-full"
-                    )}
-                >
-                    {navLinks.map((link) => (
-                        <div key={link.name} className="flex flex-col items-center">
-                            <Link
-                                href={link.href}
-                                className="text-2xl font-display font-bold text-white/90 hover:text-white transition-colors"
-                            >
-                                {link.name}
-                            </Link>
-                            {/* Mobile Services List */}
-                            {link.hasDropdown && (
-                                <div className="mt-4 flex flex-col items-center gap-3">
-                                    {servicesList.slice(0, 3).map(service => (
-                                        <Link key={service.id} href={`/services/${service.id}`} className="text-zinc-500 text-sm">{service.title}</Link>
-                                    ))}
-                                    <Link href="/services" className="text-accent-blue text-sm mt-2">View All Services</Link>
+                {/* Mobile Menu Overlay */}
+                <AnimatePresence>
+                    {isMobileMenuOpen && (
+                        <motion.div
+                            initial={{ opacity: 0, y: -20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -20 }}
+                            transition={{ duration: 0.3, ease: "easeInOut" }}
+                            className="fixed inset-0 z-40 bg-black/95 backdrop-blur-xl flex flex-col pt-32 px-6 md:hidden overflow-y-auto"
+                        >
+                            <div className="flex flex-col space-y-6">
+                                {/* Main Links */}
+                                {navLinks.map((link) => (
+                                    <div key={link.name} className="flex flex-col border-b border-white/10 pb-6 last:border-0">
+                                        <div
+                                            className="flex items-center justify-between cursor-pointer"
+                                            onClick={() => {
+                                                if (link.hasDropdown) {
+                                                    setHoveredService(hoveredService === "mobile-services" ? null : "mobile-services");
+                                                } else {
+                                                    setIsMobileMenuOpen(false);
+                                                }
+                                            }}
+                                        >
+                                            {link.hasDropdown ? (
+                                                <button className="text-3xl font-display font-bold text-white flex items-center gap-2 w-full justify-between">
+                                                    {link.name}
+                                                    <ChevronDown
+                                                        size={24}
+                                                        className={cn(
+                                                            "text-zinc-500 transition-transform duration-300",
+                                                            hoveredService === "mobile-services" ? "rotate-180" : ""
+                                                        )}
+                                                    />
+                                                </button>
+                                            ) : (
+                                                <Link
+                                                    href={link.href}
+                                                    className="text-3xl font-display font-bold text-white block w-full"
+                                                    onClick={() => setIsMobileMenuOpen(false)}
+                                                >
+                                                    {link.name}
+                                                </Link>
+                                            )}
+                                        </div>
+
+                                        {/* Mobile Services Accordion */}
+                                        <AnimatePresence>
+                                            {link.hasDropdown && hoveredService === "mobile-services" && (
+                                                <motion.div
+                                                    initial={{ height: 0, opacity: 0 }}
+                                                    animate={{ height: "auto", opacity: 1 }}
+                                                    exit={{ height: 0, opacity: 0 }}
+                                                    transition={{ duration: 0.3 }}
+                                                    className="overflow-hidden"
+                                                >
+                                                    <div className="pt-6 flex flex-col gap-4 pl-2">
+                                                        {servicesList.map((service) => (
+                                                            <Link
+                                                                key={service.id}
+                                                                href={`/services/${service.id}`}
+                                                                className="flex items-center gap-3 text-zinc-400 hover:text-white transition-colors group"
+                                                                onClick={() => setIsMobileMenuOpen(false)}
+                                                            >
+                                                                <div
+                                                                    className="w-8 h-8 rounded-full border border-white/10 flex items-center justify-center bg-white/5 group-hover:bg-white/10 transition-colors"
+                                                                    style={{ color: service.accent }}
+                                                                >
+                                                                    <service.icon size={14} />
+                                                                </div>
+                                                                <span className="text-lg font-dm-sans">{service.title}</span>
+                                                            </Link>
+                                                        ))}
+                                                    </div>
+                                                </motion.div>
+                                            )}
+                                        </AnimatePresence>
+                                    </div>
+                                ))}
+
+                                {/* Mobile Extra Links */}
+                                <div className="flex flex-col gap-4 mt-8 pt-8 border-t border-white/10">
+                                    <Link href="/careers" onClick={() => setIsMobileMenuOpen(false)}>
+                                        <span className="text-xl font-display font-bold text-zinc-400 hover:text-white transition-colors">
+                                            Careers
+                                        </span>
+                                    </Link>
+                                    <Link href={user ? "/dashboard" : "/signin"} onClick={() => setIsMobileMenuOpen(false)}>
+                                        <span className="text-xl font-display font-bold text-zinc-400 hover:text-white transition-colors">
+                                            {user ? "Dashboard" : "Sign In"}
+                                        </span>
+                                    </Link>
                                 </div>
-                            )}
-                        </div>
-                    ))}
-                    <div className="flex flex-col space-y-4 mt-8 w-full px-12">
-                        <Link href="/contact" className="w-full">
-                            <Button className="w-full rounded-full bg-white text-black h-12 text-xs uppercase tracking-widest font-bold">
-                                Hire Talent
-                            </Button>
-                        </Link>
-                    </div>
-                </div>
+
+                                {/* Mobile CTA */}
+                                <div className="mt-8 pb-12">
+                                    <Link href="/contact" onClick={() => setIsMobileMenuOpen(false)}>
+                                        <Button className="w-full h-14 rounded-full bg-white text-black text-sm font-bold uppercase tracking-widest hover:bg-zinc-200">
+                                            Start a Project
+                                        </Button>
+                                    </Link>
+                                </div>
+                            </div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
             </div>
         </header>
     );

@@ -5,7 +5,7 @@ import Application from "@/models/Application";
 export async function GET() {
     try {
         await connectToDatabase();
-        const applications = await Application.find().sort({ dateApplied: -1 });
+        const applications = await Application.find().sort({ createdAt: -1 });
         return NextResponse.json({ success: true, data: applications });
     } catch (error) {
         return NextResponse.json({ success: false, error: "Failed to fetch applications" }, { status: 500 });
@@ -17,8 +17,27 @@ export async function POST(request: Request) {
         await connectToDatabase();
         const body = await request.json();
 
-        // Check if application already exists for this job
-        const existingApplication = await Application.findOne({ jobId: body.jobId });
+        // Validate required fields (basic check)
+        const requiredFields = [
+            "jobId", "fullName", "email", "phone", "city", "country",
+            "experienceYears", "resumeUrl"
+        ];
+
+        for (const field of requiredFields) {
+            if (!body[field]) {
+                return NextResponse.json(
+                    { success: false, error: `Missing required field: ${field}` },
+                    { status: 400 }
+                );
+            }
+        }
+
+        // Check for duplicate application (email + jobId)
+        const existingApplication = await Application.findOne({
+            jobId: body.jobId,
+            email: body.email
+        });
+
         if (existingApplication) {
             return NextResponse.json(
                 { success: false, error: "You have already applied for this position." },
@@ -27,8 +46,16 @@ export async function POST(request: Request) {
         }
 
         const application = await Application.create(body);
-        return NextResponse.json({ success: true, data: application });
-    } catch (error) {
-        return NextResponse.json({ success: false, error: "Failed to create application" }, { status: 500 });
+
+        return NextResponse.json(
+            { success: true, message: "Application submitted successfully", data: application },
+            { status: 201 }
+        );
+    } catch (error: any) {
+        console.error("Application error:", error);
+        return NextResponse.json(
+            { success: false, error: error.message || "Failed to create application" },
+            { status: 500 }
+        );
     }
 }

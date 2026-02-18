@@ -1,6 +1,6 @@
 "use client";
 
-import { portfolioData } from "@/lib/portfolio-data";
+import { portfolioData } from "@/data/portfolio-data";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";

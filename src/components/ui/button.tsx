@@ -28,8 +28,8 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 
         const variants = {
             primary: "bg-gradient-to-r from-accent-gold to-[#B8985E] text-white hover:translate-y-[-3px] hover:shadow-glow hover:brightness-110 active:translate-y-[-1px]",
-            secondary: "border border-border-strong bg-transparent text-text-primary hover:border-accent-gold hover:bg-white/5",
-            ghost: "text-text-muted hover:text-text-primary underline-offset-4 hover:underline",
+            secondary: "border border-border-strong bg-transparent text-white hover:border-accent-gold hover:bg-white/5",
+            ghost: "text-white/70 hover:text-white underline-offset-4 hover:underline",
             outline: "border border-white/20 text-space-mono text-xs tracking-wider uppercase hover:border-white/40 hover:bg-white/5",
             service: "bg-white text-black hover:brightness-110", // Placeholder, actual service buttons need dynamic colors
             icon: "rounded-full border border-white/10 hover:scale-110 hover:border-accent-gold/50 hover:shadow-[0_0_15px_rgba(200,169,110,0.3)]",

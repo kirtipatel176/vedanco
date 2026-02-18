@@ -1,6 +1,6 @@
 "use client";
 
-import { servicesData } from "@/lib/services-data";
+import { servicesData } from "@/data/services-data";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
@@ -28,11 +28,11 @@ export default function ServicesPage() {
                             Our Expertise
                         </Badge>
                         <h1 className="font-display font-black text-6xl md:text-8xl text-white tracking-tighter mb-6">
-                            Constructing <br className="hidden md:block" />
-                            <span className="text-zinc-500">Digital Empires</span>
+                            Real Growth. <br className="hidden md:block" />
+                            <span className="text-zinc-500">No Fluff.</span>
                         </h1>
                         <p className="font-dm-sans text-lg md:text-xl text-zinc-400 max-w-2xl mx-auto leading-relaxed">
-                            Comprehensive solutions specifically designed to scale global enterprises through precision automation, strategic branding, and elite talent acquisition.
+                            We don't sell "digital transformation." We build the systems, brands, and teams that actually make your business money.
                         </p>
                     </motion.div>
                 </div>

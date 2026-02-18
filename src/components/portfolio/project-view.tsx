@@ -1,6 +1,6 @@
 "use client";
 
-import { ProjectData } from "@/lib/portfolio-data";
+import { ProjectData } from "@/types";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { ArrowLeft, ArrowUpRight } from "lucide-react";
 import Image from "next/image";

@@ -1,17 +1,4 @@
-export type ProjectData = {
-    id: string;
-    title: string;
-    client: string;
-    description: string;
-    category: string;
-    image: string; // Placeholder or actual path
-    challenge: string;
-    solution: string;
-    result: string;
-    services: string[];
-    year: string;
-    website?: string;
-};
+import { ProjectData } from "@/types";
 
 export const portfolioData: Record<string, ProjectData> = {
     "fintech-revolution": {

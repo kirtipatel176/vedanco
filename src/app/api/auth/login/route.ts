@@ -1,25 +1,64 @@
 import { NextResponse } from "next/server";
+import connectToDatabase from "@/lib/db";
+import User from "@/models/User";
+import { comparePassword, signToken } from "@/lib/auth";
+import { cookies } from "next/headers";
 
 export async function POST(request: Request) {
-    // Mock authentication logic
-    const body = await request.json();
-    const { email, password } = body;
+    try {
+        await connectToDatabase();
 
-    // Simulate database look up
-    if (email === "demo@vedanco.com" && password === "demo123") {
-        return NextResponse.json({
+        const { email, password } = await request.json();
+
+        if (!email || !password) {
+            return NextResponse.json(
+                { message: "Missing email or password" },
+                { status: 400 }
+            );
+        }
+
+        const user = await User.findOne({ email }).select("+password");
+
+        if (!user) {
+            return NextResponse.json(
+                { message: "Invalid credentials" },
+                { status: 401 }
+            );
+        }
+
+        const isMatch = await comparePassword(password, user.password as string);
+
+        if (!isMatch) {
+            return NextResponse.json(
+                { message: "Invalid credentials" },
+                { status: 401 }
+            );
+        }
+
+        const token = await signToken({ userId: user._id, email: user.email });
+
+        const response = NextResponse.json({
             success: true,
             user: {
-                id: "1",
-                name: "Demo User",
-                email: "demo@vedanco.com",
-                role: "user"
-            }
+                id: user._id,
+                name: user.name,
+                email: user.email,
+            },
         });
-    }
 
-    return NextResponse.json(
-        { success: false, message: "Invalid credentials" },
-        { status: 401 }
-    );
+        (await cookies()).set("token", token as string, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            maxAge: 60 * 60 * 24, // 1 day
+            path: "/",
+        });
+
+        return response;
+    } catch (error: any) {
+        console.error("Login error:", error);
+        return NextResponse.json(
+            { message: "Internal Server Error" },
+            { status: 500 }
+        );
+    }
 }

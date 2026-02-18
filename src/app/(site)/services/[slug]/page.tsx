@@ -1,6 +1,6 @@
 "use client";
 
-import { servicesData } from "@/lib/services-data";
+import { servicesData } from "@/data/services-data";
 import { notFound } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -43,11 +43,10 @@ export default function ServicePage({ params }: { params: Promise<{ slug: string
                             {service.title}
                         </Badge>
                         <h1 className="font-display font-black text-5xl md:text-7xl lg:text-8xl text-white tracking-tighter mb-8 leading-[1.1]">
-                            {service.description.split(" ").slice(0, 3).join(" ")} <br className="hidden md:block" />
-                            <span style={{ color: service.accent }}>{service.description.split(" ").slice(3).join(" ")}</span>
+                            {service.headline}
                         </h1>
                         <p className="font-dm-sans text-lg md:text-xl text-zinc-400 max-w-2xl mx-auto leading-relaxed mb-10">
-                            Partner with Vedanco to deploy enterprise-grade {service.title.toLowerCase()} solutions that drive measurable growth.
+                            {service.description}
                         </p>
 
                         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -174,8 +173,6 @@ export default function ServicePage({ params }: { params: Promise<{ slug: string
                                                 <div className="pl-0 md:pl-20 pr-0 md:pr-32 grid md:grid-cols-2 gap-8 pb-4">
                                                     <p className="text-zinc-500 text-lg leading-relaxed">
                                                         {offering.description}
-                                                        <br /><br />
-                                                        We deploy {offering.title} frameworks to ensure rapid scalability and security.
                                                     </p>
                                                     <div className="bg-zinc-50 rounded-xl p-6 border border-black/5">
                                                         <h4 className="font-bold text-black mb-4">Key Benefits</h4>
@@ -234,7 +231,7 @@ export default function ServicePage({ params }: { params: Promise<{ slug: string
                                 Systematic <br /> <span className="text-zinc-500">Execution</span>
                             </h2>
                             <p className="text-zinc-400 text-lg leading-relaxed mb-8">
-                                Our proven process ensures transparency, efficiency, and exceptional results from day one.
+                                We work in public. You'll know exactly what's happening, when it's happening, and why.
                             </p>
                             <Button variant="outline" className="rounded-full border-white/10 text-white hover:bg-white/5">
                                 Download Process Guide
