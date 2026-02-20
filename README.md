@@ -1,36 +1,138 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Vedanco
+
+A full-stack Next.js platform for job listings, candidate applications, and user profiles — powered by MongoDB, ImageKit, and Tailwind CSS.
+
+---
+
+## Tech Stack
+
+| Layer | Technology |
+|---|---|
+| Framework | Next.js 16 (App Router, Turbopack) |
+| Language | TypeScript |
+| Database | MongoDB (via Mongoose) |
+| Styling | Tailwind CSS + shadcn/ui |
+| Image Uploads | ImageKit.io |
+| Auth | JWT via HTTP-only cookies |
+| Forms | React Hook Form + Zod |
+
+---
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+
+- **Node.js** v18 or higher
+- **npm** v9 or higher
+- A **MongoDB** cluster (e.g. [MongoDB Atlas](https://cloud.mongodb.com))
+- An **ImageKit.io** account (free tier is fine)
+
+---
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/kirtipatel176/vedanco.git
+cd vedanco
+```
+
+### 2. Install dependencies
+
+```bash
+npm install
+```
+
+### 3. Configure environment variables
+
+Create a `.env.local` file in the project root:
+
+```bash
+cp .env.example .env.local
+```
+
+Then fill in your values (see [Environment Variables](#environment-variables) below).
+
+### 4. Run the development server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 5. Build for production
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run build
+npm start
+```
 
-## Learn More
+---
 
-To learn more about Next.js, take a look at the following resources:
+## Environment Variables
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Create a `.env.local` file in the root of the project with the following keys:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```env
+# ─── MongoDB ────────────────────────────────────────────────────────────
+# Your MongoDB connection string (from Atlas or local instance)
+MONGODB_URI=mongodb+srv://<username>:<password>@<cluster>.mongodb.net/<dbname>
 
-## Deploy on Vercel
+# ─── JWT / Auth ─────────────────────────────────────────────────────────
+# A long, random secret string used to sign JWT tokens
+# Generate one with: openssl rand -base64 64
+JWT_SECRET=your_super_secret_jwt_key_here
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+# ─── ImageKit (Image Uploads) ────────────────────────────────────────────
+# Find these in: https://imagekit.io/dashboard/developer/api-keys
+NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT=https://ik.imagekit.io/your_imagekit_id
+NEXT_PUBLIC_IMAGEKIT_PUBLIC_KEY=public_xxxxxxxxxxxxxxxxxxxx
+IMAGEKIT_PRIVATE_KEY=private_xxxxxxxxxxxxxxxxxxxx
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Where to get each value
+
+| Variable | Where to find it |
+|---|---|
+| `MONGODB_URI` | [MongoDB Atlas](https://cloud.mongodb.com) → Connect → Drivers → Copy connection string |
+| `JWT_SECRET` | Generate with `openssl rand -base64 64` in your terminal |
+| `NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT` | [ImageKit Dashboard](https://imagekit.io/dashboard/developer/api-keys) → URL Endpoint |
+| `NEXT_PUBLIC_IMAGEKIT_PUBLIC_KEY` | [ImageKit Dashboard](https://imagekit.io/dashboard/developer/api-keys) → Public Key |
+| `IMAGEKIT_PRIVATE_KEY` | [ImageKit Dashboard](https://imagekit.io/dashboard/developer/api-keys) → Private Key |
+
+> **Important:** Never commit `.env.local` to version control. It is already in `.gitignore`.
+
+---
+
+## Project Structure
+
+```
+src/
+├── app/
+│   ├── (site)/          # Public-facing pages (Home, Careers, Contact, About)
+│   ├── (dashboard)/     # Authenticated dashboard (Jobs, Applications, Profile)
+│   └── api/             # Next.js API routes (auth, contact, imagekit, upload)
+├── components/          # Shared UI components
+├── context/             # Auth context provider
+├── lib/
+│   ├── actions/         # Server actions (users, jobs, applications)
+│   └── db.ts            # MongoDB connection helper
+└── models/              # Mongoose models (User, Job, Application)
+```
+
+---
+
+## Available Scripts
+
+| Command | Description |
+|---|---|
+| `npm run dev` | Start development server on port 3000 |
+| `npm run build` | Build production bundle |
+| `npm start` | Start production server |
+| `npm run lint` | Run ESLint |
+
+---
+
+## License
+
+This project is private and proprietary. All rights reserved.
