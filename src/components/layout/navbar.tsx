@@ -44,6 +44,7 @@ export function Navbar() {
     }, [pathname]);
 
     const servicesList = Object.values(servicesData);
+    const isLightHeader = pathname.startsWith("/company") && !isScrolled;
 
     return (
         <header
@@ -68,17 +69,32 @@ export function Navbar() {
                         priority
                     />
                     <div className="flex flex-col">
-                        <span className="font-display text-xl md:text-2xl font-black tracking-tighter text-white leading-none">
+                        <span
+                            className={cn(
+                                "font-display text-xl md:text-2xl font-black tracking-tighter leading-none",
+                                isLightHeader ? "text-black" : "text-white"
+                            )}
+                        >
                             VEDANCO
                         </span>
-                        <span className="text-[10px] md:text-xs font-dm-sans tracking-widest text-zinc-400 uppercase leading-none mt-1">
+                        <span
+                            className={cn(
+                                "text-[10px] md:text-xs font-dm-sans tracking-widest uppercase leading-none mt-1",
+                                isLightHeader ? "text-zinc-600" : "text-zinc-400"
+                            )}
+                        >
                             Root Here, Rising Worldwide
                         </span>
                     </div>
                 </Link>
 
                 {/* Desktop Nav - Centered & Styled like Neno */}
-                <nav className="hidden md:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 items-center bg-white/5 backdrop-blur-sm px-2 py-1.5 rounded-full border border-white/10">
+                <nav
+                    className={cn(
+                        "hidden md:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 items-center backdrop-blur-sm px-2 py-1.5 rounded-full border",
+                        isLightHeader ? "bg-black/5 border-black/10" : "bg-white/5 border-white/10"
+                    )}
+                >
                     {navLinks.map((link) => (
                         <div
                             key={link.name}
@@ -88,8 +104,9 @@ export function Navbar() {
                             <Link
                                 href={link.href}
                                 className={cn(
-                                    "text-[11px] font-dm-sans font-bold uppercase tracking-[0.2em] text-zinc-400 transition-all hover:text-white px-5 py-2 rounded-full flex items-center gap-1",
-                                    pathname.startsWith(link.href) && "text-white bg-white/10"
+                                    "text-[11px] font-dm-sans font-bold uppercase tracking-[0.2em] transition-all px-5 py-2 rounded-full flex items-center gap-1",
+                                    isLightHeader ? "text-zinc-600 hover:text-black" : "text-zinc-400 hover:text-white",
+                                    pathname.startsWith(link.href) && (isLightHeader ? "text-black bg-black/5" : "text-white bg-white/10")
                                 )}
                             >
                                 {link.name}
@@ -144,7 +161,12 @@ export function Navbar() {
                     <Link href="/careers">
                         <Button
                             variant="outline"
-                            className="h-9 px-5 rounded-full border-white/20 hover:border-white/40 bg-transparent text-[10px] font-bold uppercase tracking-widest text-white hover:bg-white/5"
+                            className={cn(
+                                "h-9 px-5 rounded-full bg-transparent text-[10px] font-bold uppercase tracking-widest",
+                                isLightHeader
+                                    ? "border-black/20 hover:border-black/40 text-black hover:bg-black/5"
+                                    : "border-white/20 hover:border-white/40 text-white hover:bg-white/5"
+                            )}
                         >
                             Careers
                         </Button>
@@ -152,7 +174,12 @@ export function Navbar() {
                     <Link href={user ? "/dashboard" : "/signin"}>
                         <Button
                             variant="ghost"
-                            className="h-9 px-5 rounded-full text-zinc-400 hover:text-white text-[10px] font-bold uppercase tracking-widest hover:bg-white/5"
+                            className={cn(
+                                "h-9 px-5 rounded-full text-[10px] font-bold uppercase tracking-widest",
+                                isLightHeader
+                                    ? "text-zinc-600 hover:text-black hover:bg-black/5"
+                                    : "text-zinc-400 hover:text-white hover:bg-white/5"
+                            )}
                         >
                             {user ? "Dashboard" : "Sign In"}
                         </Button>
@@ -161,7 +188,7 @@ export function Navbar() {
 
                 {/* Mobile Toggle */}
                 <button
-                    className="md:hidden z-50 text-white"
+                    className={cn("md:hidden z-50", isLightHeader ? "text-black" : "text-white")}
                     onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                 >
                     {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}

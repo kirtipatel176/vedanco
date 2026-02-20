@@ -52,11 +52,6 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "/",
   },
-  icons: {
-    icon: "/favicon.svg",
-    shortcut: "/favicon.svg",
-    apple: "/logo.png",
-  },
   openGraph: {
     title: "Vedanco | One Platform. Six Expert Agencies.",
     description: "IT Services, AI & Automation, Digital Marketing, Personal Branding, US Recruitment, Podcast Production.",
@@ -64,10 +59,10 @@ export const metadata: Metadata = {
     siteName: "Vedanco",
     images: [
       {
-        url: "/og-image.svg",
-        width: 1200,
-        height: 630,
-        alt: "Vedanco",
+        url: "/images/logo.png",
+        width: 512,
+        height: 512,
+        alt: "Vedanco logo",
       },
     ],
     locale: "en_US",
@@ -77,7 +72,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Vedanco | One Platform. Six Expert Agencies.",
     description: "IT Services, AI & Automation, Digital Marketing, Personal Branding, US Recruitment, Podcast Production.",
-    images: ["/og-image.svg"],
+    images: ["/images/logo.png"],
   },
 };
 
