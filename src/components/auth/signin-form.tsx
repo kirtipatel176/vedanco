@@ -10,8 +10,8 @@ import { useAuth } from "@/context/auth-context";
 import { apiFetch } from "@/services/api";
 
 export default function SignInForm() {
-    const [email, setEmail] = useState("demo@vedanco.com");
-    const [password, setPassword] = useState("demo123");
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
     const [error, setError] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const router = useRouter();

@@ -6,10 +6,10 @@ import { cn } from "@/lib/utils";
 import {
     LayoutDashboard,
     Briefcase,
-    User,
     LogOut,
     ChevronLeft,
     ChevronRight,
+    User,
 } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -89,6 +89,18 @@ export function Sidebar() {
                         <div className="text-sm font-medium text-dashboard-text-primary truncate">{user.email}</div>
                     </div>
                 )}
+
+                <Link
+                    href="/"
+                    className={cn(
+                        "w-full flex items-center gap-3 px-3 py-2.5 mb-2 rounded-lg text-sm font-medium text-dashboard-text-secondary hover:text-dashboard-text-primary hover:bg-dashboard-surface-hover transition-colors",
+                        isCollapsed && "justify-center"
+                    )}
+                >
+                    <ChevronLeft size={20} />
+                    {!isCollapsed && <span>Back to Website</span>}
+                </Link>
+
                 <button
                     onClick={() => logout()}
                     className={cn(

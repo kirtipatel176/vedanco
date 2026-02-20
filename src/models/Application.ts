@@ -23,6 +23,7 @@ export interface IApplication extends Document {
     resumeUrl: string;
     coverLetterUrl?: string; // or text
     portfolioUrl?: string;
+    profileImageUrl?: string;
 
     // Screening
     reasonForApplying?: string;
@@ -56,6 +57,7 @@ const ApplicationSchema: Schema = new Schema(
         resumeUrl: { type: String, required: true },
         coverLetterUrl: { type: String },
         portfolioUrl: { type: String },
+        profileImageUrl: { type: String },
 
         reasonForApplying: { type: String },
         skillExperience: { type: String },

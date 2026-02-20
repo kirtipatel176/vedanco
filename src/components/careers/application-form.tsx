@@ -13,7 +13,7 @@ import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { createApplication } from "@/lib/actions/application.actions";
+import { createApplication, checkApplicationExists } from "@/lib/actions/application.actions";
 import { trackUpload } from "@/lib/actions/upload.actions";
 import { IKContext, IKUpload } from "imagekitio-react";
 import { apiFetch } from "@/services/api";
@@ -56,14 +56,17 @@ const STEPS = [
 interface ApplicationFormProps {
     jobId?: string;
     jobTitle?: string;
+    isClosed?: boolean;
 }
 
-export default function ApplicationForm({ jobId: propJobId, jobTitle }: ApplicationFormProps) {
+export default function ApplicationForm({ jobId: propJobId, jobTitle, isClosed = false }: ApplicationFormProps) {
     const { isAuthenticated, user, isLoading: authLoading } = useAuth();
     const pathname = usePathname();
 
     const [currentStep, setCurrentStep] = useState(0);
     const [hasApplied, setHasApplied] = useState(false);
+    const [hasAppliedAlready, setHasAppliedAlready] = useState(false);
+    const [checkingStatus, setCheckingStatus] = useState(true);
     const [isPending, startTransition] = useTransition();
     const [uploadingResume, setUploadingResume] = useState(false);
     const [uploadingCoverLetter, setUploadingCoverLetter] = useState(false);
@@ -145,7 +148,7 @@ export default function ApplicationForm({ jobId: propJobId, jobTitle }: Applicat
         }
     };
 
-    // Determine default values from user
+    // Determine default values from user and check application status
     useEffect(() => {
         if (isAuthenticated && user) {
             form.reset({
@@ -165,8 +168,23 @@ export default function ApplicationForm({ jobId: propJobId, jobTitle }: Applicat
                 reasonForApplying: "",
                 skillExperience: "",
             });
+
+            // Check if user has already applied
+            if (user.email && jobId && jobId !== "general-application") {
+                setCheckingStatus(true);
+                checkApplicationExists(jobId, user.email).then((res) => {
+                    if (res.success && res.exists) {
+                        setHasAppliedAlready(true);
+                    }
+                    setCheckingStatus(false);
+                });
+            } else {
+                setCheckingStatus(false);
+            }
+        } else if (!authLoading) {
+            setCheckingStatus(false);
         }
-    }, [isAuthenticated, user, form]);
+    }, [isAuthenticated, user, form, jobId, authLoading]);
 
     const validateStep = async (stepIndex: number) => {
         const fields = getFieldsForStep(stepIndex);
@@ -233,7 +251,7 @@ export default function ApplicationForm({ jobId: propJobId, jobTitle }: Applicat
         }
     };
 
-    if (authLoading) {
+    if (authLoading || checkingStatus) {
         return <div className="p-12 text-center text-gray-400 flex items-center justify-center gap-2"><Loader2 className="animate-spin w-5 h-5" /> Loading application form...</div>;
     }
 
@@ -263,23 +281,62 @@ export default function ApplicationForm({ jobId: propJobId, jobTitle }: Applicat
         );
     }
 
-    if (hasApplied) {
+    // --- ALREADY APPLIED STATES ---
+    if (hasApplied || hasAppliedAlready) {
         return (
             <section className="bg-green-50/50 rounded-2xl p-12 border border-green-100 mt-12 scroll-mt-32 text-center relative overflow-hidden" id="apply">
                 <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-green-400 to-emerald-500" />
                 <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6 text-green-600 shadow-sm">
                     <CheckCircle className="w-10 h-10" />
                 </div>
+
+                <h3 className="font-display font-semibold text-2xl mb-3 text-gray-900">Application Limit Reached</h3>
+                <p className="text-gray-600 mb-8 max-w-md mx-auto leading-relaxed">
+                    You have already submitted an application for this position. Only one application is allowed per account.
+                </p>
+
+                {/* Variant 1: Simple (Hidden by default, uncomment to use)
                 <h3 className="font-display font-semibold text-2xl mb-3 text-gray-900">Application Submitted</h3>
                 <p className="text-gray-600 mb-8 max-w-md mx-auto leading-relaxed">
-                    You have successfully applied for {jobTitle ? <span className="font-semibold text-gray-900">{jobTitle}</span> : "this role"}. We will review your application and get back to you soon.
+                    You have already applied for this role.
                 </p>
+                */}
+
+                {/* Variant 2: Professional (Hidden by default, uncomment to use)
+                <h3 className="font-display font-semibold text-2xl mb-3 text-gray-900">Application Received</h3>
+                <p className="text-gray-600 mb-8 max-w-md mx-auto leading-relaxed">
+                    Your application for this position has been successfully submitted. We will review your profile and contact you accordingly.
+                </p>
+                */}
+
                 <div className="flex justify-center gap-4">
                     <Button asChild variant="outline" className="border-gray-200 text-gray-700 hover:bg-white hover:border-gray-300 hover:text-black font-medium px-8 h-11">
                         <Link href="/dashboard/applications">View My Applications</Link>
                     </Button>
                     <Button asChild className="bg-black text-white hover:bg-zinc-800 px-8 h-11">
                         <Link href="/careers">Browse More Jobs</Link>
+                    </Button>
+                </div>
+            </section>
+        );
+    }
+
+    // --- JOB CLOSED / DISABLED UI STATE ---
+    if (isClosed) {
+        return (
+            <section className="bg-gray-50 rounded-2xl p-12 border border-gray-200 mt-12 scroll-mt-32 text-center relative overflow-hidden" id="apply">
+                <div className="w-20 h-20 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-6 text-gray-500 shadow-sm">
+                    <AlertCircle className="w-10 h-10" />
+                </div>
+
+                <h3 className="font-display font-semibold text-2xl mb-3 text-gray-900">Applications Closed</h3>
+                <p className="text-gray-600 mb-8 max-w-md mx-auto leading-relaxed">
+                    This position is no longer accepting applications.
+                </p>
+
+                <div className="flex justify-center gap-4">
+                    <Button asChild className="bg-black text-white hover:bg-zinc-800 px-8 h-11">
+                        <Link href="/careers">Browse Other Jobs</Link>
                     </Button>
                 </div>
             </section>

@@ -7,97 +7,82 @@ import { ProfileView } from "@/components/dashboard/profile/ProfileView";
 import { ProfileForm } from "@/components/dashboard/profile/ProfileForm";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
 
 export default function ProfilePage() {
-    const { user: authUser, isLoading: isAuthLoading } = useAuth();
+    const { user: authUser, logout, updateUser } = useAuth();
     const [profile, setProfile] = useState<UserProfile | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [isEditing, setIsEditing] = useState(false);
-    const [error, setError] = useState("");
 
     useEffect(() => {
         async function fetchProfile() {
             if (!authUser?.id) return;
 
+            setIsLoading(true);
             try {
-                setIsLoading(true);
-                // We use the ID from the auth context to fetch the full profile
                 const result = await getUserProfile(authUser.id);
-
-                if (result.error) {
-                    setError(result.error);
-                    toast.error(result.error);
-                } else if (result.user) {
+                if (result.user) {
                     setProfile(result.user);
+                } else {
+                    toast.error(result.error || "Failed to load profile");
                 }
-            } catch {
-                setError("Failed to load profile");
-                toast.error("Failed to load profile");
+            } catch (error) {
+                toast.error("An unexpected error occurred");
+                console.error(error);
             } finally {
                 setIsLoading(false);
             }
         }
 
-        if (!isAuthLoading && authUser) {
-            fetchProfile();
-        } else if (!isAuthLoading && !authUser) {
-            setIsLoading(false); // Auth failed or not logged in
-        }
-    }, [authUser, isAuthLoading]);
+        fetchProfile();
+    }, [authUser]);
 
-    const handleProfileUpdate = (updatedUser: UserProfile) => {
+    const handleUpdateSuccess = (updatedUser: UserProfile) => {
         setProfile(updatedUser);
         setIsEditing(false);
+        // Instantly update the header avatar and name
+        updateUser({
+            name: updatedUser.name,
+            profileImage: updatedUser.profileImage,
+        });
     };
 
-    if (isAuthLoading || (isLoading && authUser)) {
+    if (isLoading) {
         return (
-            <div className="flex h-[50vh] w-full items-center justify-center">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <div className="flex h-[50vh] items-center justify-center">
+                <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
             </div>
         );
     }
 
-    if (!authUser) {
+    if (!profile) {
         return (
-            <div className="flex flex-col items-center justify-center h-[50vh] gap-4">
-                <h2 className="text-xl font-semibold">Please log in to view your profile</h2>
-                {/* Redirect logic could go here or relying on protected route middleware */}
-            </div>
-        );
-    }
-
-    if (error) {
-        return (
-            <div className="flex flex-col items-center justify-center h-[50vh] gap-4">
-                <h2 className="text-xl font-semibold text-destructive">Error loading profile</h2>
-                <p className="text-muted-foreground">{error}</p>
-                <Button variant="outline" onClick={() => window.location.reload()}>Retry</Button>
+            <div className="flex flex-col items-center justify-center h-[50vh] text-center space-y-4">
+                <h2 className="text-2xl font-bold tracking-tight text-gray-900">Profile Not Found</h2>
+                <p className="text-gray-500 max-w-sm">We couldn&apos;t load your profile information. Please try refreshing the page or logging in again.</p>
             </div>
         );
     }
 
     return (
-        <div className="p-6 md:p-8 max-w-5xl mx-auto space-y-8">
-            {/* Breadcrumb or simplified header could go here if needed, but the view has a header */}
+        <div className="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+            <div className="mb-8">
+                <h1 className="text-3xl font-bold tracking-tight text-gray-900">My Profile</h1>
+                <p className="text-gray-500 mt-2">Manage your personal information and experience.</p>
+            </div>
 
-            {profile ? (
-                isEditing ? (
-                    <ProfileForm
-                        user={profile}
-                        onCancel={() => setIsEditing(false)}
-                        onSuccess={handleProfileUpdate}
-                    />
-                ) : (
+            {isEditing ? (
+                <ProfileForm
+                    user={profile}
+                    onSuccess={handleUpdateSuccess}
+                    onCancel={() => setIsEditing(false)}
+                />
+            ) : (
+                <div className="bg-gray-50/50 rounded-2xl p-6 border border-gray-100">
                     <ProfileView
                         user={profile}
                         onEdit={() => setIsEditing(true)}
                     />
-                )
-            ) : (
-                <div className="flex justify-center p-8">
-                    <Loader2 className="h-6 w-6 animate-spin" />
                 </div>
             )}
         </div>

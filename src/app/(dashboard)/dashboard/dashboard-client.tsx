@@ -8,6 +8,8 @@ import { MapPin, DollarSign, Calendar } from "lucide-react";
 import { ApplicationDialog } from "@/components/dashboard/ApplicationDialog";
 import { JobDialog } from "@/components/dashboard/JobDialog";
 import { IJob } from "@/models/Job";
+import { createApplication } from "@/lib/actions/application.actions";
+import { toast } from "sonner"; // Assuming toast is from sonner, as it's used in the onSubmit
 
 interface JobItem {
     _id?: string;
@@ -125,6 +127,8 @@ export default function DashboardClient({ initialJobs }: Readonly<DashboardClien
                 open={isAppDialogOpen}
                 onOpenChange={setIsAppDialogOpen}
                 mode="add"
+                jobId={selectedJobForApp?._id as string | undefined}
+                isJobClosed={selectedJobForApp?.status === "closed"}
                 initialValues={selectedJobForApp ? {
                     role: selectedJobForApp.title,
                     company: "Vedanco - " + selectedJobForApp.department,
@@ -132,9 +136,27 @@ export default function DashboardClient({ initialJobs }: Readonly<DashboardClien
                     dateApplied: new Date().toISOString().split("T")[0],
                     notes: ""
                 } : undefined}
-                onSubmit={async () => {
-                    alert("This is a preview of the application form.");
-                    setIsAppDialogOpen(false);
+                onSubmit={async (values) => {
+                    try {
+                        const result = await createApplication({
+                            ...values,
+                            jobId: selectedJobForApp?._id as string,
+                            jobTitle: selectedJobForApp?.title,
+                            status: 'APPLIED'
+                        });
+
+                        if (result.success) {
+                            toast.success(result.message || "Application submitted successfully");
+                            setIsAppDialogOpen(false);
+                            // Ensure the dashboard data refreshes if needed, 
+                            // though Next.js Server Actions with revalidatePath usually handle this.
+                        } else {
+                            toast.error(result.message || "Failed to submit application");
+                        }
+                    } catch (error) {
+                        console.error("Submission error:", error);
+                        toast.error("An unexpected error occurred. Please try again.");
+                    }
                 }}
             />
 

@@ -3,7 +3,7 @@
  * All requests include credentials (cookies) for cross-origin auth.
  */
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "";
 
 export class ApiError extends Error {
     constructor(public status: number, message: string) {
@@ -28,6 +28,10 @@ export async function apiFetch<T = any>(
 
     if (!res.ok) {
         const error = await res.json().catch(() => ({ message: "Request failed" }));
+        // Suppress 401 error logs as they intentionally trigger during session checks
+        if (res.status !== 401) {
+            console.error(`[API] Failed: ${res.status} ${res.statusText}`, error);
+        }
         throw new ApiError(res.status, error.message || "Request failed");
     }
 

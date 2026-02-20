@@ -38,7 +38,7 @@ export function Header() {
                         </p>
                     </div>
                     <Avatar className="h-8 w-8 md:h-9 md:w-9 border border-dashboard-border">
-                        <AvatarImage src="/placeholder-avatar.jpg" />
+                        <AvatarImage src={user?.profileImage || ""} />
                         <AvatarFallback className="bg-dashboard-accent text-white font-bold text-xs md:text-sm">
                             {user?.name ? user.name.charAt(0).toUpperCase() : "U"}
                         </AvatarFallback>

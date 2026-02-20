@@ -130,7 +130,7 @@ export default async function JobDetailsPage({ params }: { params: Promise<{ slu
                                 Start your journey effectively. We can&apos;t wait to see what you bring to the table.
                             </p>
                         </div>
-                        <ApplicationForm jobId={job._id} jobTitle={job.title} />
+                        <ApplicationForm jobId={job._id} jobTitle={job.title} isClosed={job.status === 'closed'} />
                     </div>
                 </div>
             </div>

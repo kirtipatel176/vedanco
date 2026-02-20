@@ -8,19 +8,43 @@ export async function getApplications(limit?: number, email?: string) {
     noStore(); // Force dynamic data fetching
     try {
         await connectToDatabase();
-        let query = Application.find({});
+        const matchStage: Record<string, unknown> = {};
+        if (email) matchStage.email = email;
 
-        if (email) {
-            query = query.where('email', email);
-        }
+        const pipeline = [
+            { $match: matchStage },
+            { $sort: { createdAt: -1 } },
+            ...(limit ? [{ $limit: limit }] : []),
+            // Join User by email to get the candidate's real profile image
+            {
+                $lookup: {
+                    from: "users",
+                    let: { appEmail: "$email" },
+                    pipeline: [
+                        { $match: { $expr: { $eq: ["$email", "$$appEmail"] } } },
+                        { $project: { profileImage: 1 } },
+                        { $limit: 1 },
+                    ],
+                    as: "_userDoc",
+                },
+            },
+            // Use application's own profileImageUrl if present, else User.profileImage
+            {
+                $addFields: {
+                    profileImageUrl: {
+                        $cond: [
+                            { $and: [{ $ifNull: ["$profileImageUrl", false] }, { $ne: ["$profileImageUrl", ""] }] },
+                            "$profileImageUrl",
+                            { $ifNull: [{ $arrayElemAt: ["$_userDoc.profileImage", 0] }, null] },
+                        ],
+                    },
+                },
+            },
+            { $unset: "_userDoc" },
+        ];
 
-        query = query.sort({ createdAt: -1 });
-
-        if (limit) {
-            query = query.limit(limit);
-        }
-
-        const applications = await query.exec();
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const applications = await Application.aggregate(pipeline as any);
         return { success: true, data: JSON.parse(JSON.stringify(applications)) };
     } catch (error) {
         console.error("Error fetching applications:", error);
@@ -86,6 +110,7 @@ export async function createApplication(data: Partial<IApplication>) {
             const urlsToKeep: string[] = [];
             if (data.resumeUrl) urlsToKeep.push(data.resumeUrl);
             if (data.coverLetterUrl) urlsToKeep.push(data.coverLetterUrl);
+            if (data.profileImageUrl) urlsToKeep.push(data.profileImageUrl);
             // Add other file URLs if any
 
             if (urlsToKeep.length > 0) {
@@ -109,5 +134,16 @@ export async function createApplication(data: Partial<IApplication>) {
             error: "SubmissionFailed",
             message
         };
+    }
+}
+
+export async function checkApplicationExists(jobId: string, email: string) {
+    try {
+        await connectToDatabase();
+        const existingApplication = await Application.findOne({ jobId, email });
+        return { success: true, exists: !!existingApplication };
+    } catch (error) {
+        console.error("Error checking application status:", error);
+        return { success: false, exists: false, error: "Failed to check status" };
     }
 }

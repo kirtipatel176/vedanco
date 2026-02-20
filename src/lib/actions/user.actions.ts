@@ -14,7 +14,8 @@ export type UserProfile = {
     designation?: string;
     experience?: string;
     skills?: string;
-    bio?: string; // Adding bio as per requirements, strictly speaking need to add to model too if not present
+    bio?: string;
+    profileImage?: string;
     createdAt: string;
     updatedAt: string;
 };
@@ -31,6 +32,7 @@ function serializeUser(user: IUser & { _id: { toString(): string }; createdAt: D
         experience: user.experience,
         skills: user.skills,
         bio: user.bio,
+        profileImage: user.profileImage,
         createdAt: user.createdAt.toISOString(),
         updatedAt: user.updatedAt.toISOString(),
     };
@@ -79,5 +81,22 @@ export async function updateUserProfile(userId: string, data: Partial<IUser>) {
     } catch (error: unknown) {
         console.error("Error updating user profile:", error);
         return { error: error instanceof Error ? error.message : "Failed to update profile" };
+    }
+}
+
+export async function deleteUserProfile(userId: string) {
+    try {
+        await connectToDatabase();
+
+        const deletedUser = await User.findByIdAndDelete(userId);
+
+        if (!deletedUser) {
+            return { error: "User not found" };
+        }
+
+        return { success: true };
+    } catch (error: unknown) {
+        console.error("Error deleting user profile:", error);
+        return { error: error instanceof Error ? error.message : "Failed to delete profile" };
     }
 }

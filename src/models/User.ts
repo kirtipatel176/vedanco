@@ -10,6 +10,7 @@ export interface IUser extends Document {
     experience?: string;
     skills?: string;
     bio?: string;
+    profileImage?: string;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -25,6 +26,7 @@ const UserSchema: Schema = new Schema(
         experience: { type: String },
         skills: { type: String },
         bio: { type: String },
+        profileImage: { type: String },
     },
     {
         timestamps: true,
