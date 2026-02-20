@@ -113,8 +113,8 @@ export default function ContactPage() {
                             </div>
                             <div>
                                 <h3 className="text-lg font-medium text-white mb-1">Email Us</h3>
-                                <a href="mailto:hello@vedanco.com" className="text-zinc-400 hover:text-white transition-colors">
-                                    hello@vedanco.com
+                                <a href="mailto:vedanco.official@vedanco.com" className="text-zinc-400 hover:text-white transition-colors">
+                                    vedanco.official@vedanco.com
                                 </a>
                             </div>
                         </div>
@@ -126,8 +126,8 @@ export default function ContactPage() {
                             <div>
                                 <h3 className="text-lg font-medium text-white mb-1">Visit Us</h3>
                                 <p className="text-zinc-400">
-                                    Global Headquarters<br />
-                                    San Francisco, CA
+                                    InfoCity, Super Mall 1, Office No. 421/C,<br />
+                                    Gandhinagar, Gujarat - India
                                 </p>
                             </div>
                         </div>
@@ -144,6 +144,19 @@ export default function ContactPage() {
                                     <Link href="#" className="text-zinc-400 hover:text-white transition-colors">Instagram</Link>
                                 </div>
                             </div>
+                        </div>
+
+                        <div className="rounded-2xl border border-white/10 overflow-hidden bg-white/5">
+                            <div className="px-4 py-3 border-b border-white/10">
+                                <p className="text-xs uppercase tracking-[0.3em] text-zinc-400">Office Map</p>
+                            </div>
+                            <iframe
+                                title="Vedanco office location"
+                                src="https://www.google.com/maps?q=Gandhinagar%20Gujarat%20India&output=embed"
+                                loading="lazy"
+                                className="w-full h-64 border-0"
+                                referrerPolicy="no-referrer-when-downgrade"
+                            />
                         </div>
                     </motion.div>
                 </motion.div>

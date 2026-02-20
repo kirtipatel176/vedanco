@@ -2,8 +2,15 @@ import { NextRequest, NextResponse } from "next/server";
 import connectToDatabase from "@/lib/db";
 import mongoose from "mongoose";
 
+interface ContactDocument extends mongoose.Document {
+    name: string;
+    email: string;
+    subject: string;
+    message: string;
+}
+
 // Simple schema to store contact submissions
-const contactSchema = new mongoose.Schema(
+const contactSchema = new mongoose.Schema<ContactDocument>(
     {
         name: { type: String, required: true },
         email: { type: String, required: true },
@@ -14,8 +21,8 @@ const contactSchema = new mongoose.Schema(
 );
 
 const Contact =
-    (mongoose.models.Contact as mongoose.Model<typeof contactSchema>) ||
-    mongoose.model("Contact", contactSchema);
+    (mongoose.models.Contact as mongoose.Model<ContactDocument>) ||
+    mongoose.model<ContactDocument>("Contact", contactSchema);
 
 export async function POST(req: NextRequest) {
     try {

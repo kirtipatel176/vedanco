@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import { Playfair_Display, DM_Sans, Space_Mono, Syne, Space_Grotesk } from "next/font/google";
 import { AuthProvider } from "@/context/auth-context";
 import { Toaster } from "sonner";
@@ -30,9 +31,58 @@ const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
 });
 
+const siteUrl = new URL("https://vedanco.com");
+
 export const metadata: Metadata = {
-  title: "Vedanco | One Platform. Six Expert Agencies.",
+  metadataBase: siteUrl,
+  title: {
+    default: "Vedanco | One Platform. Six Expert Agencies.",
+    template: "%s | Vedanco",
+  },
   description: "IT Services, AI & Automation, Digital Marketing, Personal Branding, US Recruitment, Podcast Production.",
+  keywords: [
+    "Vedanco",
+    "AI automation",
+    "IT services",
+    "digital marketing",
+    "personal branding",
+    "recruitment",
+    "podcast production",
+  ],
+  alternates: {
+    canonical: "/",
+  },
+  icons: {
+    icon: "/favicon.svg",
+    shortcut: "/favicon.svg",
+    apple: "/logo.png",
+  },
+  openGraph: {
+    title: "Vedanco | One Platform. Six Expert Agencies.",
+    description: "IT Services, AI & Automation, Digital Marketing, Personal Branding, US Recruitment, Podcast Production.",
+    url: siteUrl,
+    siteName: "Vedanco",
+    images: [
+      {
+        url: "/og-image.svg",
+        width: 1200,
+        height: 630,
+        alt: "Vedanco",
+      },
+    ],
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Vedanco | One Platform. Six Expert Agencies.",
+    description: "IT Services, AI & Automation, Digital Marketing, Personal Branding, US Recruitment, Podcast Production.",
+    images: ["/og-image.svg"],
+  },
+};
+
+export const viewport = {
+  themeColor: "#080C14",
 };
 
 export default function RootLayout({
@@ -40,11 +90,21 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const gaId = process.env.NEXT_PUBLIC_GA_ID;
+
   return (
     <html lang="en" suppressHydrationWarning>
       <body
         className={`${playfair.variable} ${dmSans.variable} ${spaceMono.variable} ${syne.variable} ${spaceGrotesk.variable} antialiased font-sans bg-primary text-primary flex flex-col min-h-screen`}
       >
+        {gaId ? (
+          <>
+            <Script src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`} strategy="afterInteractive" />
+            <Script id="ga4" strategy="afterInteractive">
+              {`window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', '${gaId}', { anonymize_ip: true });`}
+            </Script>
+          </>
+        ) : null}
         <AuthProvider>
           {children}
           <Toaster />

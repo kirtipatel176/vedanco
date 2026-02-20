@@ -95,8 +95,8 @@ export function Footer() {
                     <div className="md:col-span-2 space-y-6">
                         <h4 className="font-space-mono text-xs font-bold text-white uppercase tracking-widest">company</h4>
                         <ul className="space-y-3">
-                            <FooterLink href="/about">About</FooterLink>
-                            <FooterLink href="/work">Case Studies</FooterLink>
+                            <FooterLink href="/company">About</FooterLink>
+                            <FooterLink href="/portfolio">Case Studies</FooterLink>
                             <FooterLink href="/careers">Careers</FooterLink>
                             <FooterLink href="/contact">Contact</FooterLink>
                         </ul>
@@ -118,7 +118,7 @@ export function Footer() {
                     <div className="flex space-x-8 mt-4 md:mt-0">
                         <Link href="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link>
                         <Link href="/terms" className="hover:text-white transition-colors">Terms</Link>
-                        <Link href="/sitemap" className="hover:text-white transition-colors">Sitemap</Link>
+                        <Link href="/sitemap.xml" className="hover:text-white transition-colors">Sitemap</Link>
                     </div>
                 </div>
             </div>
