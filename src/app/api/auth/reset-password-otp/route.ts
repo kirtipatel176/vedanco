@@ -1,25 +1,35 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
+import connectToDatabase from "@/lib/db";
+import User from "@/models/User";
+import { verifyData } from "@/utils/security";
 
-export async function POST(req: NextRequest) {
+export async function POST(req: Request) {
     try {
-        const body = await req.json();
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL as string;
+        await connectToDatabase();
+        const { email, otp } = await req.json();
 
-        const response = await fetch(`${apiUrl}/api/auth/verify-otp`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(body),
-        });
+        if (!email || !otp) {
+            return NextResponse.json({ success: false, message: "Email and OTP are required" }, { status: 400 });
+        }
 
-        const data = await response.json();
-        return NextResponse.json(data, { status: response.status });
+        const user = await User.findOne({ email });
+
+        if (!user || !user.resetPasswordOtp || !user.resetPasswordOtpExpiry) {
+            return NextResponse.json({ success: false, message: "Invalid OTP" }, { status: 400 });
+        }
+
+        if (new Date() > user.resetPasswordOtpExpiry) {
+            return NextResponse.json({ success: false, message: "OTP has expired" }, { status: 400 });
+        }
+
+        const isMatch = await verifyData(otp, user.resetPasswordOtp);
+        if (!isMatch) {
+            return NextResponse.json({ success: false, message: "Invalid OTP" }, { status: 400 });
+        }
+
+        return NextResponse.json({ success: true, message: "OTP verified successfully" });
     } catch (error) {
-        console.error("Proxy to verify-otp error:", error);
-        return NextResponse.json(
-            { success: false, message: "Internal Server Error" },
-            { status: 500 }
-        );
+        console.error("Verify OTP error:", error);
+        return NextResponse.json({ success: false, message: "Internal Server Error" }, { status: 500 });
     }
 }

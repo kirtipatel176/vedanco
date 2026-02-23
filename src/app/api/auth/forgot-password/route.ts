@@ -1,25 +1,38 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
+import connectToDatabase from "@/lib/db";
+import User from "@/models/User";
+import { EmailService } from "@/services/email.service";
+import { hashData } from "@/utils/security";
 
-export async function POST(req: NextRequest) {
+export async function POST(req: Request) {
     try {
-        const body = await req.json();
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL as string;
+        await connectToDatabase();
+        const { email } = await req.json();
 
-        const response = await fetch(`${apiUrl}/api/auth/forgot-password`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(body),
-        });
+        if (!email) {
+            return NextResponse.json({ success: false, message: "Email is required" }, { status: 400 });
+        }
 
-        const data = await response.json();
-        return NextResponse.json(data, { status: response.status });
+        const user = await User.findOne({ email });
+        if (!user) {
+            return NextResponse.json({ success: false, message: "User not found" }, { status: 404 });
+        }
+
+        // Generate 6 digit OTP
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+        // Save hashed OTP to user (expires in 15 mins)
+        user.resetPasswordOtp = await hashData(otp);
+        user.resetPasswordOtpExpiry = new Date(Date.now() + 15 * 60 * 1000);
+        await user.save();
+
+        // Send email
+        await EmailService.sendPasswordResetOtpEmail(user.email, user.name, otp);
+
+        return NextResponse.json({ success: true, message: "OTP sent successfully. Please check your email." });
+
     } catch (error) {
-        console.error("Proxy to forgot-password error:", error);
-        return NextResponse.json(
-            { success: false, message: "Internal Server Error" },
-            { status: 500 }
-        );
+        console.error("Forgot password error:", error);
+        return NextResponse.json({ success: false, message: "Internal Server Error" }, { status: 500 });
     }
 }

@@ -12,6 +12,8 @@ export interface IUser extends Document {
     bio?: string;
     profileImage?: string;
     isVerified: boolean;
+    resetPasswordOtp?: string;
+    resetPasswordOtpExpiry?: Date;
     // --- Lockout Tracking ---
     failedLoginAttempts: number;
     lockoutUntil?: Date;
@@ -33,6 +35,8 @@ const UserSchema: Schema = new Schema(
         bio: { type: String },
         profileImage: { type: String },
         isVerified: { type: Boolean, default: true },
+        resetPasswordOtp: { type: String },
+        resetPasswordOtpExpiry: { type: Date },
         // --- Lockout Tracking ---
         failedLoginAttempts: { type: Number, default: 0 },
         lockoutUntil: { type: Date },

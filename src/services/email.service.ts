@@ -65,4 +65,26 @@ export class EmailService {
 
         return this.sendEmail(payload);
     }
+
+    /**
+     * Sends a 6 digit OTP for password reset flows.
+     */
+    static async sendPasswordResetOtpEmail(email: string, name: string, otp: string) {
+        const payload: BrevoPayload = {
+            sender: { email: brevoConfig.senderEmail, name: brevoConfig.senderName },
+            to: [{ email, name }],
+            subject: "Your Password Reset OTP",
+            htmlContent: `<div style="font-family: Arial, sans-serif; padding: 20px; background-color: #f9f9f9; border-radius: 8px; max-width: 600px; margin: 0 auto;">
+              <h2 style="color: #333;">Hello, ${name}</h2>
+              <p style="color: #555; font-size: 16px;">We received a request to reset your password. Please use the following One-Time Password to proceed.</p>
+              <div style="background-color: #ffffff; padding: 15px; border: 1px solid #ddd; border-radius: 4px; text-align: center; margin: 20px 0;">
+                <strong style="font-size: 32px; color: #007bff; letter-spacing: 4px;">${otp}</strong>
+              </div>
+              <p style="color: #777; font-size: 14px;">This code expires in 15 minutes. If you did not request a password reset, please ignore this email.</p>
+            </div>`,
+            tags: ["otp_password_reset"]
+        };
+
+        return this.sendEmail(payload);
+    }
 }

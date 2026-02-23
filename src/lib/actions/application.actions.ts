@@ -45,7 +45,15 @@ export async function getApplications(limit?: number, email?: string) {
 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const applications = await Application.aggregate(pipeline as any);
-        return { success: true, data: structuredClone(applications) };
+
+        // Convert ObjectIds to strings for safe serialization to the client component
+        const serializedApplications = applications.map(app => ({
+            ...app,
+            _id: app._id.toString(),
+            jobId: app.jobId?.toString(),
+        }));
+
+        return { success: true, data: serializedApplications };
     } catch (error) {
         console.error("Error fetching applications:", error);
         return { success: false, error: "Failed to fetch applications" };
