@@ -77,7 +77,7 @@ export default function ApplicationsPage() {
                 getApplicationStats(user.email),
                 getJobs({ status: "active" }),
             ]);
-            if (appsRes.success) setApplications(appsRes.data);
+            if (appsRes.success) setApplications(appsRes.data ?? []);
             if (statsRes.success && statsRes.stats) setStats(statsRes.stats);
             if (Array.isArray(jobsRes)) setTotalActiveJobs(jobsRes.length);
         } catch (error) {
