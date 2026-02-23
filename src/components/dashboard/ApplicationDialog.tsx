@@ -29,6 +29,7 @@ import { trackUpload } from "@/lib/actions/upload.actions";
 import { checkApplicationExists } from "@/lib/actions/application.actions";
 import { IKContext, IKUpload } from "imagekitio-react";
 import Link from "next/link";
+import Image from "next/image";
 
 // Define schema to match Application model
 const formSchema = z.object({
@@ -244,12 +245,7 @@ export function ApplicationDialog({
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [open, user, jobId]);
 
-    // Validation for steps
-    const validateStep = async (stepIndex: number) => {
-        const fields = getFieldsForStep(stepIndex);
-        const result = await form.trigger(fields as Parameters<typeof form.trigger>[0]);
-        return result;
-    };
+
 
     const getFieldsForStep = (stepIndex: number) => {
         switch (stepIndex) {
@@ -614,7 +610,7 @@ export function ApplicationDialog({
                                                             {field.value ? (
                                                                 <div className="flex items-center justify-between p-3 bg-gray-50 border border-gray-200 rounded-lg">
                                                                     <div className="flex items-center gap-2">
-                                                                        <img src={field.value} alt="Profile" className="w-8 h-8 rounded-full object-cover" />
+                                                                        <Image src={field.value} alt="Profile" width={32} height={32} className="w-8 h-8 rounded-full object-cover" />
                                                                         <span className="text-sm text-gray-700 truncate ml-2">Image Uploaded</span>
                                                                     </div>
                                                                     <Button type="button" variant="ghost" size="sm" onClick={() => field.onChange("")} className="text-red-500 h-8 w-8 p-0"><span className="sr-only">Remove</span>×</Button>

@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/context/auth-context";
+import { useAuth, User } from "@/context/auth-context";
 import { apiFetch } from "@/services/api";
 
 export default function SignUpPage() {
@@ -39,7 +39,7 @@ export default function SignUpPage() {
         setFormData({ ...formData, [e.target.id]: e.target.value });
     };
 
-    const handleRegisterSubmit = async (e: React.FormEvent) => {
+    const handleRegisterSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setIsLoading(true);
         setError("");
@@ -70,7 +70,7 @@ export default function SignUpPage() {
         }
     };
 
-    const handleOtpSubmit = async (e: React.FormEvent) => {
+    const handleOtpSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setIsLoading(true);
         setError("");
@@ -83,14 +83,16 @@ export default function SignUpPage() {
         }
 
         try {
-            const data = await apiFetch<{ success: boolean; message?: string; user?: any }>("/api/auth/verify-otp", {
+            const data = await apiFetch<{ success: boolean; message?: string; user?: User }>("/api/auth/verify-otp", {
                 method: "POST",
                 body: JSON.stringify({ email: formData.email, otp }),
             });
 
             if (data.success) {
                 setSuccessMsg("Email verified! Logging you in...");
-                login(data.user);
+                if (data.user) {
+                    login(data.user);
+                }
                 // Delay slightly to let user read success message
                 setTimeout(() => router.push("/dashboard"), 1000);
             } else {

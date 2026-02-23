@@ -17,7 +17,7 @@ export class OtpService {
         const now = new Date();
         const oneHourAgo = new Date(now.getTime() - 60 * 60 * 1000);
 
-        let pendingUser = await PendingUser.findOne({ email });
+        const pendingUser = await PendingUser.findOne({ email });
 
         // Apply rate limits natively
         if (pendingUser) {

@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useAuth } from "@/context/auth-context";
+import { useAuth, User } from "@/context/auth-context";
 import { apiFetch } from "@/services/api";
 
 export default function SignInForm() {
@@ -18,15 +18,19 @@ export default function SignInForm() {
     const searchParams = useSearchParams();
     const { login } = useAuth();
 
-    const redirectUrl = searchParams.get("redirect") || "/dashboard";
+    const rawRedirect = searchParams.get("redirect") || "/dashboard";
+    // Ensure redirect is a relative path to prevent open redirect attacks
+    const redirectUrl = rawRedirect.startsWith("/") && !rawRedirect.startsWith("//")
+        ? rawRedirect
+        : "/dashboard";
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setIsLoading(true);
         setError("");
 
         try {
-            const data = await apiFetch<{ success: boolean; user: any; message?: string }>("/api/auth/login", {
+            const data = await apiFetch<{ success: boolean; user: User; message?: string }>("/api/auth/login", {
                 method: "POST",
                 body: JSON.stringify({ email, password }),
             });
@@ -75,7 +79,7 @@ export default function SignInForm() {
                 <div className="space-y-2">
                     <div className="flex justify-between items-center">
                         <Label htmlFor="password" className="text-sm font-bold text-black uppercase tracking-wide">Password</Label>
-                        <Link href="/auth/forgot-password" className="text-xs font-semibold text-zinc-500 hover:text-black transition-colors">
+                        <Link href="/forgot-password" className="text-xs font-semibold text-zinc-500 hover:text-black transition-colors">
                             Forgot Password?
                         </Link>
                     </div>

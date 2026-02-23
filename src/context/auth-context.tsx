@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { apiFetch, ApiError } from "@/services/api";
 
-interface User {
+export interface User {
     id: string;
     name: string;
     email: string;
@@ -104,8 +104,7 @@ export function AuthProvider({ children }: Readonly<{ children: React.ReactNode 
         logout,
         updateUser,
         isAuthenticated: !!user,
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }), [user, isLoading]);
+    }), [user, isLoading, login, logout]);
 
     return (
         <AuthContext.Provider value={contextValue}>
