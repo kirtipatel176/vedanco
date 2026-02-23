@@ -33,7 +33,7 @@ export function ApplicationDetailsDialog({
     open,
     onOpenChange,
     application,
-}: ApplicationDetailsDialogProps) {
+}: Readonly<ApplicationDetailsDialogProps>) {
     if (!application) return null;
 
     const getStatusColor = (status: string) => {

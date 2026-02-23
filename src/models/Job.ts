@@ -7,7 +7,13 @@ export interface IJob extends Document {
     type: "Full-time" | "Part-time" | "Contract" | "Remote" | "Internship"
     description: string
     requirements: string[]
-    salaryRange?: string
+    salaryRange?:
+    | string
+    | {
+        min: number
+        max?: number
+        currency: string
+    }
     experienceRequired?: string
     status: "active" | "closed" | "draft"
     slug: string
@@ -45,7 +51,10 @@ const JobSchema = new Schema<IJob>(
         requirements: [{
             type: String,
         }],
-        salaryRange: String,
+        salaryRange: {
+            type: Schema.Types.Mixed,
+            default: { min: 0, max: undefined, currency: "INR" },
+        },
         experienceRequired: String,
         status: {
             type: String,
@@ -65,6 +74,7 @@ const JobSchema = new Schema<IJob>(
     },
     {
         timestamps: true,
+        collection: "jobs",
     }
 )
 

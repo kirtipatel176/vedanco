@@ -19,10 +19,7 @@ export default function DesignSystemPage() {
         }
     };
 
-    const _item = {
-        hidden: { opacity: 0, y: 20 },
-        show: { opacity: 1, y: 0 }
-    };
+
 
     return (
         <div className="min-h-screen bg-bg-primary text-text-primary p-8 md:p-12 space-y-20">
@@ -284,7 +281,7 @@ export default function DesignSystemPage() {
     );
 }
 
-function ColorCard({ name, hex, className }: { name: string, hex: string, className?: string }) {
+function ColorCard({ name, hex, className }: Readonly<{ name: string, hex: string, className?: string }>) {
     return (
         <motion.div
             whileHover={{ y: -5, scale: 1.02 }}
@@ -298,7 +295,7 @@ function ColorCard({ name, hex, className }: { name: string, hex: string, classN
     )
 }
 
-function GlassCard({ children, className }: { children: React.ReactNode, className?: string }) {
+function GlassCard({ children, className }: Readonly<{ children: React.ReactNode, className?: string }>) {
     return (
         <Card className={`bg-white/5 backdrop-blur-xl border-white/10 text-white shadow-2xl hover:bg-white/10 transition-all duration-300 ${className}`}>
             {children}

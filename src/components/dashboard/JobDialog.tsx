@@ -71,6 +71,16 @@ export function JobDialog({
         },
     });
 
+    const getInitialSalaryDisplay = (salaryRange: IJob['salaryRange'] | undefined) => {
+        if (typeof salaryRange === 'object' && salaryRange !== null) {
+            let display = `${salaryRange.min}`;
+            if (salaryRange.max) display += `-${salaryRange.max}`;
+            display += ` ${salaryRange.currency}`;
+            return display;
+        }
+        return (salaryRange as string) || "";
+    };
+
     useEffect(() => {
         if (open) {
             if (initialValues) {
@@ -81,7 +91,7 @@ export function JobDialog({
                     type: (initialValues.type as "Full-time" | "Part-time" | "Contract" | "Internship") || "Full-time",
                     description: initialValues.description || "",
                     requirements: initialValues.requirements?.join("\n") || "",
-                    salaryRange: initialValues.salaryRange || "",
+                    salaryRange: getInitialSalaryDisplay(initialValues.salaryRange),
                     experienceRequired: initialValues.experienceRequired || "",
                     status: (initialValues.status as "draft" | "active" | "closed") || "draft",
                 });

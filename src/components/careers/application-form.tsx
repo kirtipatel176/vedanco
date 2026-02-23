@@ -29,7 +29,7 @@ import {
 // Define schema
 const formSchema = z.object({
     fullName: z.string().min(2, "Full Name is required"),
-    email: z.string().email("Invalid email address"),
+    email: z.string().regex(/^[^\s@]+@[^\s@]+\.[^\s@]+$/, "Invalid email address"),
     phone: z.string().min(5, "Phone number is required"),
     city: z.string().min(2, "City is required"),
     country: z.string().min(2, "Country is required"),
@@ -59,7 +59,7 @@ interface ApplicationFormProps {
     isClosed?: boolean;
 }
 
-export default function ApplicationForm({ jobId: propJobId, jobTitle, isClosed = false }: ApplicationFormProps) {
+export default function ApplicationForm({ jobId: propJobId, jobTitle, isClosed = false }: Readonly<ApplicationFormProps>) {
     const { isAuthenticated, user, isLoading: authLoading } = useAuth();
     const pathname = usePathname();
 
@@ -76,7 +76,7 @@ export default function ApplicationForm({ jobId: propJobId, jobTitle, isClosed =
     const coverLetterInputRef = useRef<HTMLInputElement>(null);
 
     // Determine Job ID safely
-    const jobId = propJobId || (pathname?.split('/').filter(Boolean).pop()) || "general-application";
+    const jobId = propJobId || (pathname?.split('/').findLast(Boolean)) || "general-application";
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -102,7 +102,7 @@ export default function ApplicationForm({ jobId: propJobId, jobTitle, isClosed =
     // ImageKit Authenticator
     const authenticator = async () => {
         try {
-            const data = await apiFetch("/api/uploads/auth");
+            const data = await apiFetch<{ signature: string, expire: number, token: string }>("/api/upload/auth");
             const { signature, expire, token } = data;
             return { signature, expire, token };
         } catch (error: unknown) {
@@ -171,13 +171,18 @@ export default function ApplicationForm({ jobId: propJobId, jobTitle, isClosed =
 
             // Check if user has already applied
             if (user.email && jobId && jobId !== "general-application") {
-                setCheckingStatus(true);
-                checkApplicationExists(jobId, user.email).then((res) => {
-                    if (res.success && res.exists) {
-                        setHasAppliedAlready(true);
+                const fetchAppStatus = async () => {
+                    setCheckingStatus(true);
+                    try {
+                        const res = await checkApplicationExists(jobId, user.email);
+                        if (res.success && res.exists) {
+                            setHasAppliedAlready(true);
+                        }
+                    } finally {
+                        setCheckingStatus(false);
                     }
-                    setCheckingStatus(false);
-                });
+                };
+                fetchAppStatus();
             } else {
                 setCheckingStatus(false);
             }
@@ -186,11 +191,6 @@ export default function ApplicationForm({ jobId: propJobId, jobTitle, isClosed =
         }
     }, [isAuthenticated, user, form, jobId, authLoading]);
 
-    const validateStep = async (stepIndex: number) => {
-        const fields = getFieldsForStep(stepIndex);
-        const result = await form.trigger(fields as Parameters<typeof form.trigger>[0]);
-        return result;
-    };
 
     const getFieldsForStep = (stepIndex: number) => {
         switch (stepIndex) {
@@ -203,7 +203,11 @@ export default function ApplicationForm({ jobId: propJobId, jobTitle, isClosed =
     };
 
     const handleNext = async () => {
-        const isValid = await validateStep(currentStep);
+        const fields = getFieldsForStep(currentStep);
+        let isValid = true;
+        if (fields.length > 0) {
+            isValid = await form.trigger(fields as Parameters<typeof form.trigger>[0]);
+        }
         if (isValid) {
             setCurrentStep(prev => Math.min(prev + 1, STEPS.length - 1));
         }
@@ -227,14 +231,12 @@ export default function ApplicationForm({ jobId: propJobId, jobTitle, isClosed =
                 if (result.success) {
                     setHasApplied(true);
                     toast.success(result.message);
+                } else if (result.error === "Duplicate") {
+                    // Show success state but with duplicate message
+                    toast.error(result.message);
+                    setHasApplied(true);
                 } else {
-                    if (result.error === "Duplicate") {
-                        // Show success state but with duplicate message
-                        toast.error(result.message);
-                        setHasApplied(true);
-                    } else {
-                        toast.error(result.message || "Failed to submit application. Please try again.");
-                    }
+                    toast.error(result.message || "Failed to submit application. Please try again.");
                 }
             } catch (error: unknown) {
                 console.error("Submission error:", error);
@@ -374,15 +376,17 @@ export default function ApplicationForm({ jobId: propJobId, jobTitle, isClosed =
                             const isCompleted = index < currentStep;
                             const isCurrent = index === currentStep;
 
+                            let stepClasses = 'bg-white border-2 border-gray-200 text-gray-400';
+                            if (isCompleted) {
+                                stepClasses = 'bg-black text-white ring-4 ring-white shadow-md';
+                            } else if (isCurrent) {
+                                stepClasses = 'bg-white border-2 border-black text-black ring-4 ring-black/5 shadow-lg scale-110';
+                            }
+
                             return (
                                 <div key={step.id} className="flex flex-col items-center bg-gray-50 px-2 z-10">
                                     <div
-                                        className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold transition-all duration-500 ${isCompleted
-                                            ? 'bg-black text-white ring-4 ring-white shadow-md'
-                                            : isCurrent
-                                                ? 'bg-white border-2 border-black text-black ring-4 ring-black/5 shadow-lg scale-110'
-                                                : 'bg-white border-2 border-gray-200 text-gray-400'
-                                            }`}
+                                        className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold transition-all duration-500 ${stepClasses}`}
                                     >
                                         {isCompleted ? <CheckCircle className="w-4 h-4" /> : index + 1}
                                     </div>
@@ -397,7 +401,7 @@ export default function ApplicationForm({ jobId: propJobId, jobTitle, isClosed =
 
                 <div className="p-10 bg-white min-h-[400px]">
                     <Form {...form}>
-                        <form onSubmit={form.handleSubmit(onSubmit, onInvalid)} className="space-y-10">
+                        <form className="space-y-10">
                             {/* Step 1: Personal Details */}
                             {currentStep === 0 && (
                                 <div className="space-y-8 animate-in fade-in slide-in-from-right-8 duration-500 ease-out">
@@ -558,17 +562,23 @@ export default function ApplicationForm({ jobId: propJobId, jobTitle, isClosed =
                                                                         <p className="text-base font-medium text-gray-600">Uploading your resume...</p>
                                                                     </div>
                                                                 ) : (
-                                                                    <label htmlFor="resume-upload" className="cursor-pointer block">
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() => resumeInputRef.current?.click()}
+                                                                        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') resumeInputRef.current?.click(); }}
+                                                                        className="w-full text-left cursor-pointer block border-2 border-dashed border-gray-200 rounded-xl p-8 hover:bg-gray-50 hover:border-black/20 transition-all duration-300 group"
+                                                                    >
                                                                         <div className="w-16 h-16 rounded-full bg-gray-100 mx-auto mb-6 flex items-center justify-center group-hover:scale-110 group-hover:bg-white group-hover:shadow-md transition-all duration-300">
                                                                             <Upload className="w-7 h-7 text-gray-400 group-hover:text-black transition-colors" />
                                                                         </div>
-                                                                        <h3 className="text-lg font-bold text-gray-900 mb-2">Click to upload your Resume</h3>
-                                                                        <p className="text-sm text-gray-500">PDF, DOCX up to 5MB</p>
-                                                                    </label>
+                                                                        <h3 className="text-lg font-bold text-gray-900 mb-2 text-center">Click to upload your Resume</h3>
+                                                                        <p className="text-sm text-gray-500 text-center">PDF, DOCX up to 5MB</p>
+                                                                    </button>
                                                                 )}
                                                             </div>
-                                                            <div className="absolute opacity-0 w-0 h-0 overflow-hidden">
+                                                            <div className="hidden">
                                                                 <IKUpload
+                                                                    ref={resumeInputRef}
                                                                     id="resume-upload"
                                                                     fileName="resume.pdf"
                                                                     validateFile={(file: File) => file.size < 5000000} // 5MB
@@ -621,15 +631,19 @@ export default function ApplicationForm({ jobId: propJobId, jobTitle, isClosed =
                                                                     </div>
                                                                 ) : (
                                                                     <>
-                                                                        <label
-                                                                            htmlFor="cover-letter-upload"
+                                                                        <div
+                                                                            role="button"
+                                                                            tabIndex={0}
+                                                                            onClick={() => coverLetterInputRef.current?.click()}
+                                                                            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') coverLetterInputRef.current?.click(); }}
                                                                             className="border border-dashed border-gray-300 rounded-xl p-4 text-center hover:bg-gray-50 cursor-pointer transition-all bg-white flex items-center justify-center gap-3 group h-20 hover:border-gray-400"
                                                                         >
                                                                             <Upload className="w-5 h-5 text-gray-400 group-hover:text-black transition-colors" />
                                                                             <p className="text-sm text-gray-600 font-bold group-hover:text-black transition-colors">Upload Cover Letter</p>
-                                                                        </label>
-                                                                        <div className="absolute opacity-0 w-0 h-0 overflow-hidden">
+                                                                        </div>
+                                                                        <div className="hidden">
                                                                             <IKUpload
+                                                                                ref={coverLetterInputRef}
                                                                                 id="cover-letter-upload"
                                                                                 fileName="cover_letter.pdf"
                                                                                 validateFile={(file: File) => file.size < 5000000} // 5MB
@@ -702,7 +716,7 @@ export default function ApplicationForm({ jobId: propJobId, jobTitle, isClosed =
                                         Next Step <ChevronRight className="w-4 h-4" />
                                     </Button>
                                 ) : (
-                                    <Button type="submit" disabled={isPending} className="bg-black text-white hover:bg-zinc-800 px-8 h-12 rounded-lg shadow-lg shadow-black/10 transition-all hover:scale-105 active:scale-95 font-medium min-w-[200px]">
+                                    <Button type="button" onClick={() => form.handleSubmit(onSubmit, onInvalid)()} disabled={isPending} className="bg-black text-white hover:bg-zinc-800 px-8 h-12 rounded-lg shadow-lg shadow-black/10 transition-all hover:scale-105 active:scale-95 font-medium min-w-[200px]">
                                         {isPending ? <Loader2 className="animate-spin mr-2 h-4 w-4" /> : "Submit Application"}
                                     </Button>
                                 )}

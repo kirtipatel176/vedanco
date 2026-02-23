@@ -1,4 +1,4 @@
-import { Code, Cpu, Megaphone, User, Briefcase, Mic } from "lucide-react";
+import { Code, Cpu, Megaphone, User, Briefcase, Mic, Building } from "lucide-react";
 
 import { ServiceData } from "@/types";
 
@@ -176,6 +176,35 @@ export const servicesData: Record<string, ServiceData> = {
             { step: "02", title: "Record", description: "Studio-quality recording guidance." },
             { step: "03", title: "Edit", description: "Professional editing and mixing." },
             { step: "04", title: "Launch", description: "Hype campaign and distribution." },
+        ],
+    },
+    "real-estate": {
+        id: "real-estate",
+        title: "Real Estate",
+        headline: "Elevating Property Futures",
+        description: "We provide strategic real estate solutions covering advisory, property management, and market analysis. Experience comprehensive guidance aimed at maximizing the value of your investments and streamlining complex transactions.",
+        color: "accent-emerald",
+        accent: "#10B981",
+        icon: Building,
+        heroImage: "/images/real-estate-hero.jpg",
+        offsetImage: false,
+        partner: "Estate Visionaries",
+        stats: [
+            { label: "Properties Managed", value: "200+" },
+            { label: "Client Satisfaction", value: "99%" },
+            { label: "Markets Covered", value: "15+" },
+        ],
+        offerings: [
+            { title: "Property Advisory", description: "Expert guidance on buying, selling, and leasing." },
+            { title: "Market Analysis", description: "In-depth insights into local and global real estate trends." },
+            { title: "Portfolio Management", description: "Strategic management to optimize asset value." },
+            { title: "Investment Strategy", description: "Tailored approaches for robust real estate investments." },
+        ],
+        process: [
+            { step: "01", title: "Consultation", description: "Understanding your property goals and risk appetite." },
+            { step: "02", title: "Evaluation", description: "Thorough market research and property valuation." },
+            { step: "03", title: "Strategy", description: "Developing a clear roadmap for acquisition or management." },
+            { step: "04", title: "Execution", description: "Seamless transaction handling and ongoing support." },
         ],
     },
 };

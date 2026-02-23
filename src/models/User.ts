@@ -11,6 +11,11 @@ export interface IUser extends Document {
     skills?: string;
     bio?: string;
     profileImage?: string;
+    isVerified: boolean;
+    // --- Lockout Tracking ---
+    failedLoginAttempts: number;
+    lockoutUntil?: Date;
+    // ------------------------------
     createdAt: Date;
     updatedAt: Date;
 }
@@ -27,14 +32,22 @@ const UserSchema: Schema = new Schema(
         skills: { type: String },
         bio: { type: String },
         profileImage: { type: String },
+        isVerified: { type: Boolean, default: true },
+        // --- Lockout Tracking ---
+        failedLoginAttempts: { type: Number, default: 0 },
+        lockoutUntil: { type: Date },
+        // ------------------------------
     },
     {
         timestamps: true,
     }
 );
 
-// Prevent overwriting model if it already exists (Next.js hot reload issue)
-const User: Model<IUser> =
-    mongoose.models.User || mongoose.model<IUser>("User", UserSchema);
+// Delete the cached model to ensure schema updates are applied during Next.js Hot module replacement (HMR)
+if (process.env.NODE_ENV !== 'production' && mongoose.models.User) {
+    delete mongoose.models.User;
+}
+
+const User: Model<IUser> = mongoose.models.User || mongoose.model<IUser>("User", UserSchema);
 
 export default User;

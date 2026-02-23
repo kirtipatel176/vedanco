@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useForm, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -35,7 +35,7 @@ const formSchema = z.object({
     // Personal
     fullName: z.string().min(2, "Full Name is required"),
     email: z.email("Invalid email address"),
-    phone: z.string().min(5, "Phone number is required"),
+    phone: z.string().min(10, "Valid phone number is required"),
     city: z.string().min(2, "City is required"),
     country: z.string().min(2, "Country is required"),
 
@@ -47,9 +47,9 @@ const formSchema = z.object({
     startDate: z.string().optional(),
 
     // Documents
-    resumeUrl: z.string().min(1, "Resume is required"),
+    resumeUrl: z.string().min(1, "Resume is required. Please upload your resume to proceed."),
     coverLetterUrl: z.string().optional(),
-    portfolioUrl: z.string().optional(), // URL validation optional for flexibility
+    portfolioUrl: z.union([z.literal(""), z.string().url("Must be a valid URL")]).optional(),
 
     // Screening
     reasonForApplying: z.string().optional(),
@@ -125,6 +125,11 @@ export function ApplicationDialog({
     const [uploadingResume, setUploadingResume] = useState(false);
     const [uploadingCoverLetter, setUploadingCoverLetter] = useState(false);
     const [uploadingProfileImage, setUploadingProfileImage] = useState(false);
+
+    // Refs to programmatically click hidden file inputs
+    const resumeInputRef = useRef<HTMLInputElement>(null);
+    const coverLetterInputRef = useRef<HTMLInputElement>(null);
+    const profileImageInputRef = useRef<HTMLInputElement>(null);
 
     // ImageKit Authenticator
     const authenticator = async () => {
@@ -257,7 +262,11 @@ export function ApplicationDialog({
     };
 
     const handleNext = async () => {
-        const isValid = await validateStep(currentStep);
+        const fields = getFieldsForStep(currentStep);
+        let isValid = true;
+        if (fields.length > 0) {
+            isValid = await form.trigger(fields as Parameters<typeof form.trigger>[0]);
+        }
         if (isValid) {
             setCurrentStep(prev => Math.min(prev + 1, STEPS.length - 1));
         }
@@ -267,11 +276,9 @@ export function ApplicationDialog({
         setCurrentStep(prev => Math.max(prev - 1, 0));
     };
 
-
-    const handleSubmit = async (values: FormValues) => {
+    const onFormSubmit = async (values: FormValues) => {
         try {
             await onSubmit(values);
-            // Success handling is done in parent or onSubmit prop
         } catch (error) {
             console.error("Submission error:", error);
             toast.error("Failed to submit application. Please try again.");
@@ -327,26 +334,30 @@ export function ApplicationDialog({
                             <>
                                 {/* Modern Steps Indicator */}
                                 <div className="mt-6 flex items-center justify-between relative">
-                                    <div className="absolute top-1/2 left-0 w-full h-0.5 bg-gray-200 -z-10 transform -translate-y-1/2" />
+                                    <div className="absolute top-1/2 left-0 w-full h-0.5 bg-gray-200 -z-10 transform -translate-y-1/2 rounded-full" />
+                                    <div
+                                        className="absolute top-1/2 left-0 h-0.5 bg-black -z-10 transform -translate-y-1/2 rounded-full transition-all duration-500 ease-[cubic-bezier(0.25,1,0.5,1)]"
+                                        style={{ width: `${(currentStep / (STEPS.length - 1)) * 100}%` }}
+                                    />
                                     {STEPS.map((step, index) => {
                                         const isCompleted = index < currentStep;
                                         const isCurrent = index === currentStep;
 
                                         let stepClassName = 'bg-white border-2 border-gray-200 text-gray-400';
                                         if (isCompleted) {
-                                            stepClassName = 'bg-black text-white ring-4 ring-white';
+                                            stepClassName = 'bg-black text-white border-2 border-black shadow-md';
                                         } else if (isCurrent) {
-                                            stepClassName = 'bg-white border-2 border-black text-black ring-4 ring-black/5 shadow-lg scale-110';
+                                            stepClassName = 'bg-white border-2 border-black text-black ring-4 ring-black/10 shadow-lg scale-110';
                                         }
 
                                         return (
-                                            <div key={step.id} className="flex flex-col items-center bg-white px-2 z-10">
+                                            <div key={step.id} className="flex flex-col items-center bg-white px-3 z-10 transition-transform duration-300">
                                                 <div
-                                                    className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold transition-all duration-300 ${stepClassName}`}
+                                                    className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-500 ease-[cubic-bezier(0.25,1,0.5,1)] ${stepClassName}`}
                                                 >
                                                     {isCompleted ? <CheckCircle className="w-4 h-4" /> : index + 1}
                                                 </div>
-                                                <span className={`text-[10px] uppercase tracking-wider font-semibold mt-2 transition-colors duration-300 ${isCurrent ? 'text-black' : 'text-gray-400'}`}>
+                                                <span className={`text-[10px] uppercase tracking-wider font-bold mt-2 transition-colors duration-500 ${isCurrent ? 'text-black' : isCompleted ? 'text-gray-700' : 'text-gray-400'}`}>
                                                     {step.title}
                                                 </span>
                                             </div>
@@ -360,7 +371,7 @@ export function ApplicationDialog({
                     <div className="p-6">
                         {checkingStatus || hasAppliedAlready || isJobClosed ? null : (
                             <Form {...form}>
-                                <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+                                <form className="space-y-6">
                                     {/* Step 1: Personal */}
                                     {currentStep === 0 && (
                                         <div className="space-y-5 animate-in fade-in slide-in-from-bottom-4 duration-500 ease-out">
@@ -502,15 +513,22 @@ export function ApplicationDialog({
                                                                         </div>
                                                                     ) : (
                                                                         <>
-                                                                            <label htmlFor="dashboard-resume" className="border-2 border-dashed border-gray-200 rounded-xl p-8 text-center hover:bg-gray-50 hover:border-black/20 cursor-pointer transition-all duration-300 group block">
+                                                                            <div
+                                                                                role="button"
+                                                                                tabIndex={0}
+                                                                                onClick={() => resumeInputRef.current?.click()}
+                                                                                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') resumeInputRef.current?.click(); }}
+                                                                                className="border-2 border-dashed border-gray-200 rounded-xl p-8 text-center hover:bg-gray-50 hover:border-black/20 cursor-pointer transition-all duration-300 group block"
+                                                                            >
                                                                                 <div className="w-12 h-12 rounded-full bg-gray-100 mx-auto mb-3 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                                                                                     <Upload className="w-6 h-6 text-gray-400 group-hover:text-black transition-colors" />
                                                                                 </div>
                                                                                 <h3 className="text-sm font-semibold text-gray-900">Upload your Resume</h3>
                                                                                 <p className="text-xs text-gray-500 mt-1">PDF, DOCX up to 5MB</p>
-                                                                            </label>
-                                                                            <div className="absolute opacity-0 w-0 h-0 overflow-hidden">
+                                                                            </div>
+                                                                            <div className="hidden">
                                                                                 <IKUpload
+                                                                                    ref={resumeInputRef}
                                                                                     id="dashboard-resume"
                                                                                     fileName="resume.pdf"
                                                                                     validateFile={(file: File) => file.size < 5000000}
@@ -547,11 +565,18 @@ export function ApplicationDialog({
                                                                             <div className="border rounded-lg p-4 text-center bg-gray-50 text-gray-500 text-sm">Uploading...</div>
                                                                         ) : (
                                                                             <>
-                                                                                <label htmlFor="dashboard-cover-letter" className="border border-dashed border-gray-300 rounded-lg p-4 text-center hover:bg-gray-50 cursor-pointer block bg-white hover:border-black/20 transition-all">
+                                                                                <div
+                                                                                    role="button"
+                                                                                    tabIndex={0}
+                                                                                    onClick={() => coverLetterInputRef.current?.click()}
+                                                                                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') coverLetterInputRef.current?.click(); }}
+                                                                                    className="border border-dashed border-gray-300 rounded-lg p-4 text-center hover:bg-gray-50 cursor-pointer block bg-white hover:border-black/20 transition-all"
+                                                                                >
                                                                                     <p className="text-sm text-gray-600 font-medium">+ Upload Cover Letter</p>
-                                                                                </label>
-                                                                                <div className="absolute opacity-0 w-0 h-0 overflow-hidden">
+                                                                                </div>
+                                                                                <div className="hidden">
                                                                                     <IKUpload
+                                                                                        ref={coverLetterInputRef}
                                                                                         id="dashboard-cover-letter"
                                                                                         fileName="cover_letter.pdf"
                                                                                         validateFile={(file: File) => file.size < 5000000}
@@ -600,11 +625,18 @@ export function ApplicationDialog({
                                                                         <div className="border rounded-lg p-4 text-center bg-gray-50 text-gray-500 text-sm">Uploading...</div>
                                                                     ) : (
                                                                         <>
-                                                                            <label htmlFor="dashboard-profile-image" className="border border-dashed border-gray-300 rounded-lg p-4 text-center hover:bg-gray-50 cursor-pointer block bg-white hover:border-black/20 transition-all">
+                                                                            <div
+                                                                                role="button"
+                                                                                tabIndex={0}
+                                                                                onClick={() => profileImageInputRef.current?.click()}
+                                                                                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') profileImageInputRef.current?.click(); }}
+                                                                                className="border border-dashed border-gray-300 rounded-lg p-4 text-center hover:bg-gray-50 cursor-pointer block bg-white hover:border-black/20 transition-all"
+                                                                            >
                                                                                 <p className="text-sm text-gray-600 font-medium">+ Upload Profile Image</p>
-                                                                            </label>
-                                                                            <div className="absolute opacity-0 w-0 h-0 overflow-hidden">
+                                                                            </div>
+                                                                            <div className="hidden">
                                                                                 <IKUpload
+                                                                                    ref={profileImageInputRef}
                                                                                     id="dashboard-profile-image"
                                                                                     fileName="profile_image.jpg"
                                                                                     validateFile={(file: File) => file.size < 5000000}
@@ -679,7 +711,8 @@ export function ApplicationDialog({
                                             </Button>
                                         ) : (
                                             <Button
-                                                type="submit"
+                                                type="button"
+                                                onClick={() => form.handleSubmit(onFormSubmit)()}
                                                 className="bg-black text-white hover:bg-zinc-800 px-8 h-11 rounded-lg shadow-lg shadow-black/10 transition-all hover:scale-105 active:scale-95 font-medium"
                                             >
                                                 {mode === "add" ? "Submit Application" : "Save Changes"}

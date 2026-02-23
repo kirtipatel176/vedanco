@@ -88,6 +88,7 @@ export function Footer() {
                             <FooterLink href="/services/us-recruitment">Global Recruitment</FooterLink>
                             <FooterLink href="/services/podcast-production">Media Production</FooterLink>
                             <FooterLink href="/services/digital-marketing">Growth Marketing</FooterLink>
+                            <FooterLink href="/services/real-estate">Real Estate</FooterLink>
                         </ul>
                     </div>
 
@@ -126,7 +127,7 @@ export function Footer() {
     );
 }
 
-function FooterLink({ href, children }: { href: string; children: React.ReactNode }) {
+function FooterLink({ href, children }: Readonly<{ href: string; children: React.ReactNode }>) {
     return (
         <li>
             <Link href={href} className="text-sm text-zinc-400 hover:text-white transition-colors block w-fit font-dm-sans">

@@ -1,8 +1,9 @@
+export const dynamic = "force-dynamic";
 import { getJobBySlug } from "@/lib/actions/job.actions";
 import { notFound } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Briefcase, Calendar, ArrowLeft, CheckCircle2 } from "lucide-react";
+import { MapPin, Briefcase, Calendar, ArrowLeft, CheckCircle2, DollarSign, Award } from "lucide-react";
 import Link from "next/link";
 import ApplicationForm from "@/components/careers/application-form";
 
@@ -13,6 +14,23 @@ export default async function JobDetailsPage({ params }: { params: Promise<{ slu
     if (!job) {
         notFound();
     }
+
+    const getSalaryDisplay = (salaryRange: string | { min: number; max?: number; currency: string } | undefined) => {
+        if (!salaryRange) return null;
+        if (typeof salaryRange === 'string') return salaryRange;
+        if (typeof salaryRange === 'object' && salaryRange !== null) {
+            let display = `${salaryRange.currency} ${salaryRange.min}`;
+            if (salaryRange.max) {
+                display += ` - ${salaryRange.max}`;
+            } else {
+                display += '+';
+            }
+            return display;
+        }
+        return null;
+    };
+
+    const salaryDisplay = getSalaryDisplay(job.salaryRange);
 
     return (
         <div className="bg-bg-light min-h-screen pb-24">
@@ -49,6 +67,18 @@ export default async function JobDetailsPage({ params }: { params: Promise<{ slu
                                     <Briefcase className="w-4 h-4 text-accent-gold" />
                                     {job.type}
                                 </div>
+                                {salaryDisplay && (
+                                    <div className="flex items-center gap-2">
+                                        <DollarSign className="w-4 h-4 text-accent-gold" />
+                                        {salaryDisplay}
+                                    </div>
+                                )}
+                                {job.experienceRequired && (
+                                    <div className="flex items-center gap-2">
+                                        <Award className="w-4 h-4 text-accent-gold" />
+                                        {job.experienceRequired} {job.experienceRequired.toLowerCase().includes('year') ? '' : 'Years'} Exp.
+                                    </div>
+                                )}
                                 <div className="flex items-center gap-2">
                                     <Calendar className="w-4 h-4 text-accent-gold" />
                                     Posted {new Date(job.createdAt).toLocaleDateString()}

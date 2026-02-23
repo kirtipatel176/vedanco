@@ -29,7 +29,7 @@ function clearTokenCookie() {
     document.cookie = clearStr + "; Secure";
 }
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
+export function AuthProvider({ children }: Readonly<{ children: React.ReactNode }>) {
     // Start with null — MUST match the server render to avoid hydration errors.
     // We restore from localStorage inside useEffect (runs after hydration).
     const [user, setUser] = useState<User | null>(null);
@@ -86,30 +86,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         });
     };
 
-    const logout = async () => {
-        try {
-            await apiFetch("/api/auth/logout", {
-                method: "POST",
-            });
-        } catch (error) {
+    const logout = () => {
+        apiFetch("/api/auth/logout", {
+            method: "POST",
+        }).catch(error => {
             console.error("Logout failed", error);
-        }
+        });
         setUser(null);
         localStorage.removeItem("vedanco_user");
         globalThis.location.href = "/";
     };
 
+    const contextValue = React.useMemo(() => ({
+        user,
+        isLoading,
+        login,
+        logout,
+        updateUser,
+        isAuthenticated: !!user,
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }), [user, isLoading]);
+
     return (
-        <AuthContext.Provider
-            value={{
-                user,
-                isLoading,
-                login,
-                logout,
-                updateUser,
-                isAuthenticated: !!user,
-            }}
-        >
+        <AuthContext.Provider value={contextValue}>
             {children}
         </AuthContext.Provider>
     );

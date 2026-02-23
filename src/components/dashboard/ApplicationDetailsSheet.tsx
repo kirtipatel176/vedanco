@@ -79,7 +79,7 @@ export function ApplicationDetailsSheet({
                                     {application.status.replace("_", " ")}
                                 </Badge>
                                 <span className="text-[10px] font-mono text-zinc-400 uppercase tracking-widest">
-                                    APPL-{application._id.slice(-6).toUpperCase()}
+                                    APPL-{String(application._id).slice(-6).toUpperCase()}
                                 </span>
                             </div>
                             <div>

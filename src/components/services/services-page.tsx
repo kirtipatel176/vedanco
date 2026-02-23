@@ -38,6 +38,7 @@ const categoryMap: Record<string, string> = {
   "personal-branding": "Brand",
   "us-recruitment": "Talent",
   "podcast-production": "Media",
+  "real-estate": "Property",
 };
 
 const categories = ["All", ...Array.from(new Set(Object.values(categoryMap)))];

@@ -45,7 +45,7 @@ export async function getApplications(limit?: number, email?: string) {
 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const applications = await Application.aggregate(pipeline as any);
-        return { success: true, data: JSON.parse(JSON.stringify(applications)) };
+        return { success: true, data: structuredClone(applications) };
     } catch (error) {
         console.error("Error fetching applications:", error);
         return { success: false, error: "Failed to fetch applications" };
@@ -125,7 +125,7 @@ export async function createApplication(data: Partial<IApplication>) {
         revalidatePath("/dashboard/applications");
         revalidatePath("/dashboard/admin/applications");
 
-        return { success: true, data: JSON.parse(JSON.stringify(newApplication)), message: "Application submitted successfully." };
+        return { success: true, data: structuredClone(newApplication.toJSON()), message: "Application submitted successfully." };
     } catch (error: unknown) {
         console.error("Error creating application:", error);
         const message = error instanceof Error ? error.message : "Failed to submit application";

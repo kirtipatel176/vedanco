@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Briefcase, ArrowRight, ExternalLink } from "lucide-react";
+import { MapPin, Briefcase, ArrowRight, ExternalLink, DollarSign, Award } from "lucide-react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
@@ -14,15 +14,29 @@ interface Job {
     department: string;
     location: string;
     type: string;
+    salaryRange?: string | { min: number; max?: number; currency: string };
+    experienceRequired?: string;
     [key: string]: unknown;
 }
 
 interface FeaturedJobsProps {
-    jobs?: Job[];
+    readonly jobs?: Job[];
 }
 
 export function FeaturedJobs({ jobs = [] }: FeaturedJobsProps) {
     if (!jobs || jobs.length === 0) return null;
+
+    const getSalaryDisplay = (salaryRange: string | { min: number; max?: number; currency: string } | undefined) => {
+        if (!salaryRange) return null;
+        if (typeof salaryRange === 'string') return salaryRange;
+        if (typeof salaryRange === 'object' && salaryRange !== null) {
+            let display = `${salaryRange.currency} ${salaryRange.min}`;
+            if (salaryRange.max) display += ` - ${salaryRange.max}`;
+            else display += '+';
+            return display;
+        }
+        return null;
+    };
 
     return (
         <section className="bg-white py-24 md:py-32 relative overflow-hidden">
@@ -90,6 +104,18 @@ export function FeaturedJobs({ jobs = [] }: FeaturedJobsProps) {
                                                 <Briefcase size={14} className="text-zinc-400" />
                                                 <span>{job.type}</span>
                                             </div>
+                                            {job.salaryRange && (
+                                                <div className="flex items-center gap-2">
+                                                    <DollarSign size={14} className="text-zinc-400" />
+                                                    <span>{getSalaryDisplay(job.salaryRange)}</span>
+                                                </div>
+                                            )}
+                                            {job.experienceRequired && (
+                                                <div className="flex items-center gap-2">
+                                                    <Award size={14} className="text-zinc-400" />
+                                                    <span className="capitalize">{job.experienceRequired} {job.experienceRequired.toLowerCase().includes('year') ? '' : 'Years'} Exp.</span>
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
 

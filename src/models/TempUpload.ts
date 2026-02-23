@@ -5,7 +5,7 @@ export interface ITempUpload extends Document {
     fileId: string;
     url: string;
     filePath: string;
-    fileType: 'resume' | 'cover_letter' | 'other';
+    fileType: 'resume' | 'cover_letter' | 'profile_image' | 'other';
     createdAt: Date;
 }
 
@@ -14,7 +14,7 @@ const TempUploadSchema = new Schema<ITempUpload>(
         fileId: { type: String, required: true, unique: true },
         url: { type: String, required: true },
         filePath: { type: String, required: true },
-        fileType: { type: String, enum: ['resume', 'cover_letter', 'other'], default: 'other' },
+        fileType: { type: String, enum: ['resume', 'cover_letter', 'profile_image', 'other'], default: 'other' },
         createdAt: { type: Date, default: Date.now }, // Manually cleaned up to sync with ImageKit deletion
     },
     { timestamps: true }

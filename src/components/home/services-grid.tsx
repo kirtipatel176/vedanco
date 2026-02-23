@@ -42,6 +42,12 @@ const services = [
         link: "/services/digital-marketing",
         capabilities: "SEO • Paid Media • Growth Hacking",
         description: "Data-driven strategies for maximum ROI."
+    },
+    {
+        title: "Real Estate",
+        link: "/services/real-estate",
+        capabilities: "Property Advisory • Market Analysis • Portfolio Management",
+        description: "Strategic real estate solutions for modern investments."
     }
 ];
 
@@ -71,7 +77,7 @@ export function ServicesGrid() {
                 <div className="flex flex-col">
                     {services.map((service, index) => (
                         <Link
-                            key={index}
+                            key={service.link}
                             href={service.link}
                             onMouseEnter={() => setHoveredIndex(index)}
                             onMouseLeave={() => setHoveredIndex(null)}

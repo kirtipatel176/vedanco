@@ -155,7 +155,7 @@ export default function ApplicationsPage() {
 
         return filteredApplications.map((app) => (
             <tr
-                key={app._id}
+                key={String(app._id)}
                 className="hover:bg-zinc-50/60 transition-colors cursor-pointer"
                 onClick={() => handleViewDetails(app)}
             >

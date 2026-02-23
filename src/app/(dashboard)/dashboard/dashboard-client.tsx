@@ -19,7 +19,7 @@ interface JobItem {
     location: string;
     type: "Full-time" | "Part-time" | "Contract" | "Remote" | "Internship";
     status: "active" | "closed" | "draft";
-    salaryRange?: string;
+    salaryRange?: string | { min: number; max?: number; currency: string };
     description: string;
     createdAt: string;
     requirements?: string[];
@@ -72,6 +72,21 @@ export default function DashboardClient({ initialJobs }: Readonly<DashboardClien
         return "destructive";
     };
 
+    const getSalaryDisplay = (salaryRange: JobItem['salaryRange']) => {
+        if (!salaryRange) return "Competitive";
+        if (typeof salaryRange === 'string') return salaryRange;
+        if (typeof salaryRange === 'object' && salaryRange !== null) {
+            let display = `${salaryRange.currency} ${salaryRange.min}`;
+            if (salaryRange.max) {
+                display += ` - ${salaryRange.max}`;
+            } else {
+                display += '+';
+            }
+            return display;
+        }
+        return "Competitive";
+    };
+
     return (
         <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -102,7 +117,7 @@ export default function DashboardClient({ initialJobs }: Readonly<DashboardClien
                                 </div>
                                 <div className="flex items-center gap-2">
                                     <DollarSign className="w-4 h-4" />
-                                    <span>{job.salaryRange || "Competitive"}</span>
+                                    <span>{getSalaryDisplay(job.salaryRange)}</span>
                                 </div>
                                 <div className="flex items-center gap-2">
                                     <Calendar className="w-4 h-4" />

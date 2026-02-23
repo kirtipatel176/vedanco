@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import { getJobs } from "@/lib/actions/job.actions";
 
 import DashboardClient from "./dashboard-client";

@@ -26,7 +26,7 @@ export default function SignInForm() {
         setError("");
 
         try {
-            const data = await apiFetch("/api/auth/login", {
+            const data = await apiFetch<{ success: boolean; user: any; message?: string }>("/api/auth/login", {
                 method: "POST",
                 body: JSON.stringify({ email, password }),
             });

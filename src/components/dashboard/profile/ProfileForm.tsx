@@ -57,7 +57,7 @@ interface ProfileFormProps {
     onSuccess: (updatedUser: UserProfile) => void;
 }
 
-export function ProfileForm({ user, onCancel, onSuccess }: ProfileFormProps) {
+export function ProfileForm({ user, onCancel, onSuccess }: Readonly<ProfileFormProps>) {
     const [isLoading, setIsLoading] = useState(false);
     const [isUploadingImage, setIsUploadingImage] = useState(false);
     const [profileImageUrl, setProfileImageUrl] = useState(user.profileImage || "");
@@ -91,7 +91,8 @@ export function ProfileForm({ user, onCancel, onSuccess }: ProfileFormProps) {
                 toast.success("Profile updated successfully");
                 onSuccess(result.user);
             }
-        } catch (error) {
+        } catch (error: unknown) {
+            console.error("Update error:", error);
             toast.error("An unexpected error occurred");
         } finally {
             setIsLoading(false);
@@ -102,15 +103,16 @@ export function ProfileForm({ user, onCancel, onSuccess }: ProfileFormProps) {
         setIsUploadingImage(true);
     };
 
-    const onUploadSuccess = (res: any) => {
+    const onUploadSuccess = (res: { url: string }) => {
         setIsUploadingImage(false);
         setProfileImageUrl(res.url);
         toast.success("Profile image uploaded!");
     };
 
-    const onUploadError = (err: any) => {
+    const onUploadError = (err: unknown) => {
         setIsUploadingImage(false);
-        console.error("Image upload failed", err);
+        const msg = err instanceof Error ? err.message : "Unknown upload error";
+        console.error("Image upload failed", msg);
         toast.error("Failed to upload profile image");
     };
 
