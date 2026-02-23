@@ -43,16 +43,40 @@ export function Navbar() {
         return () => clearTimeout(timer);
     }, [pathname]);
 
+    // Prevent body scroll when mobile menu is open
+    useEffect(() => {
+        if (isMobileMenuOpen) {
+            document.body.style.overflow = "hidden";
+            // Prevent layout shift on iOS Safari
+            document.body.style.position = "fixed";
+            document.body.style.width = "100%";
+        } else {
+            document.body.style.overflow = "unset";
+            document.body.style.position = "static";
+            document.body.style.width = "auto";
+        }
+        return () => {
+            document.body.style.overflow = "unset";
+            document.body.style.position = "static";
+            document.body.style.width = "auto";
+        };
+    }, [isMobileMenuOpen]);
+
     const servicesList = Object.values(servicesData);
     const isLightHeader = pathname.startsWith("/company") && !isScrolled;
+
+    let headerBgClass = "bg-transparent py-6 border-white/0";
+    if (isMobileMenuOpen) {
+        headerBgClass = `bg-transparent border-transparent ${isScrolled ? "py-4" : "py-6"}`;
+    } else if (isScrolled) {
+        headerBgClass = "bg-black/50 backdrop-blur-md py-4 border-white/5";
+    }
 
     return (
         <header
             className={cn(
-                "fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b border-white/0",
-                isScrolled
-                    ? "bg-black/50 backdrop-blur-md py-4 border-white/5"
-                    : "bg-transparent py-6"
+                "fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b",
+                headerBgClass
             )}
         >
             <div className="container mx-auto px-6 md:px-12 flex items-center justify-between"
@@ -72,7 +96,7 @@ export function Navbar() {
                         <span
                             className={cn(
                                 "font-display text-xl md:text-2xl font-black tracking-tighter leading-none",
-                                isLightHeader ? "text-black" : "text-white"
+                                isLightHeader && !isMobileMenuOpen ? "text-black" : "text-white"
                             )}
                         >
                             VEDANCO
@@ -80,7 +104,7 @@ export function Navbar() {
                         <span
                             className={cn(
                                 "text-[10px] md:text-xs font-dm-sans tracking-widest uppercase leading-none mt-1",
-                                isLightHeader ? "text-zinc-600" : "text-zinc-400"
+                                isLightHeader && !isMobileMenuOpen ? "text-zinc-600" : "text-zinc-400"
                             )}
                         >
                             Root Here, Rising Worldwide
@@ -188,7 +212,7 @@ export function Navbar() {
 
                 {/* Mobile Toggle */}
                 <button
-                    className={cn("md:hidden z-50", isLightHeader ? "text-black" : "text-white")}
+                    className={cn("md:hidden z-50 transition-colors duration-300", isLightHeader && !isMobileMenuOpen ? "text-black" : "text-white")}
                     onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                 >
                     {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}

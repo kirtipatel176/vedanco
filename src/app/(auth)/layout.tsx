@@ -26,6 +26,14 @@ export default function AuthLayout({
                 {/* Logo */}
                 <Link href="/" className="relative z-10 flex items-center gap-2 group w-fit">
                     <MoveLeft className="w-5 h-5 text-white/50 group-hover:text-white transition-colors" />
+                    <Image
+                        src="/logo.png"
+                        alt="Vedanco Logo"
+                        width={40}
+                        height={40}
+                        className="h-8 w-auto object-contain"
+                        priority
+                    />
                     <span className="font-display font-black text-2xl tracking-tighter">VEDANCO</span>
                 </Link>
 

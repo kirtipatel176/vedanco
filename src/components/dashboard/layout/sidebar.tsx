@@ -2,6 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { cn } from "@/lib/utils";
 import {
     LayoutDashboard,
@@ -36,9 +37,19 @@ export function Sidebar() {
             {/* Header */}
             <div className="h-16 flex items-center justify-between px-4 border-b border-dashboard-border/50">
                 {!isCollapsed && (
-                    <span className="font-display font-bold text-xl tracking-tight text-dashboard-text-primary">
-                        VEDANCO
-                    </span>
+                    <div className="flex items-center gap-3">
+                        <Image
+                            src="/logo.png"
+                            alt="Vedanco Logo"
+                            width={32}
+                            height={32}
+                            className="h-7 w-auto object-contain"
+                            priority
+                        />
+                        <span className="font-display font-black text-2xl tracking-tight text-dashboard-text-primary mt-1">
+                            VEDANCO
+                        </span>
+                    </div>
                 )}
                 <Button
                     variant="ghost"

@@ -4,6 +4,7 @@ import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/co
 import { Button } from "@/components/ui/button";
 import { Menu, LayoutDashboard, Briefcase, User, LogOut, ChevronLeft } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
@@ -32,8 +33,16 @@ export function MobileNav() {
             <SheetContent side="left" className="w-[300px] sm:w-[340px] p-0 bg-dashboard-surface border-r border-dashboard-border flex flex-col">
                 {/* Header */}
                 <SheetHeader className="p-5 border-b border-dashboard-border/50 text-left">
-                    <SheetTitle className="font-display font-bold text-xl tracking-tight text-dashboard-text-primary">
-                        VEDANCO
+                    <SheetTitle className="font-display font-black text-2xl tracking-tight text-dashboard-text-primary flex items-center gap-3">
+                        <Image
+                            src="/logo.png"
+                            alt="Vedanco Logo"
+                            width={32}
+                            height={32}
+                            className="h-7 w-auto object-contain"
+                            priority
+                        />
+                        <span className="mt-1">VEDANCO</span>
                     </SheetTitle>
                 </SheetHeader>
 

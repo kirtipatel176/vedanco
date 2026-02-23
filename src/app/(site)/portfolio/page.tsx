@@ -106,15 +106,17 @@ export default function PortfolioPage() {
                                         {project.description}
                                     </p>
                                     {project.website && (
-                                        <a
-                                            href={project.website}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
+                                        <button
+                                            type="button"
                                             className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-white hover:text-accent-blue transition-colors z-20 relative"
-                                            onClick={(e) => e.stopPropagation()}
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                e.stopPropagation();
+                                                window.open(project.website, "_blank", "noopener,noreferrer");
+                                            }}
                                         >
                                             Visit Website <ArrowUpRight size={14} />
-                                        </a>
+                                        </button>
                                     )}
                                 </div>
                             </Link>
