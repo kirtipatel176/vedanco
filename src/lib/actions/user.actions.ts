@@ -9,19 +9,30 @@ export type UserProfile = {
     _id: string;
     name: string;
     email: string;
-    phone: string;
+    phone?: string;
     company?: string;
     designation?: string;
-    experience?: string;
-    skills?: string;
+    department?: string;
+    location?: string;
+    skills?: string[];
     bio?: string;
-    profileImage?: string;
+    avatar?: string;
+    role?: "user" | "admin" | "hr";
     createdAt: string;
     updatedAt: string;
+    isActive: boolean;
 };
 
 // Helper to serialize Mongoose document to plain object
-function serializeUser(user: IUser & { _id: { toString(): string }; createdAt: Date; updatedAt: Date }): UserProfile {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function serializeUser(user: any): UserProfile {
+    // Runtime check for skills to handle legacy string data or existing array
+    const skills = Array.isArray(user.skills)
+        ? user.skills
+        : typeof user.skills === "string"
+            ? user.skills.split(",").map((s: string) => s.trim()).filter(Boolean)
+            : [];
+
     return {
         _id: user._id.toString(),
         name: user.name,
@@ -29,12 +40,15 @@ function serializeUser(user: IUser & { _id: { toString(): string }; createdAt: D
         phone: user.phone,
         company: user.company,
         designation: user.designation,
-        experience: user.experience,
-        skills: user.skills,
+        department: user.department,
+        location: user.location,
+        skills: skills,
         bio: user.bio,
-        profileImage: user.profileImage,
-        createdAt: user.createdAt.toISOString(),
-        updatedAt: user.updatedAt.toISOString(),
+        avatar: user.avatar,
+        role: user.role,
+        isActive: user.isActive ?? true, // Default to true if undefined
+        createdAt: user.createdAt instanceof Date ? user.createdAt.toISOString() : new Date().toISOString(),
+        updatedAt: user.updatedAt instanceof Date ? user.updatedAt.toISOString() : new Date().toISOString(),
     };
 }
 

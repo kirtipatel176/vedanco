@@ -11,7 +11,9 @@ const eslintConfig = defineConfig([
     ".next/**",
     "out/**",
     "build/**",
-    "next-env.d.ts",
+    "dist/**",
+    "antigravity-simulator/**",
+    "node_modules/**",
   ]),
 ]);
 

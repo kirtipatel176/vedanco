@@ -43,7 +43,7 @@ export default function ProfilePage() {
         // Instantly update the header avatar and name
         updateUser({
             name: updatedUser.name,
-            profileImage: updatedUser.profileImage,
+            avatar: updatedUser.avatar,
         });
     };
 

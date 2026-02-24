@@ -46,7 +46,8 @@ export async function POST(req: Request) {
         const { ...userData } = pendingUser.userData;
         const user = await User.create({
             ...userData,
-            isVerified: true
+            verified: true,
+            isActive: true
         });
 
         // 5. Atomic DB Cleanup (Consume OTP)
@@ -63,6 +64,8 @@ export async function POST(req: Request) {
                 name: user.name,
                 email: user.email,
                 phone: user.phone,
+                role: user.role,
+                avatar: user.avatar,
             },
             token
         }, { status: 200 });

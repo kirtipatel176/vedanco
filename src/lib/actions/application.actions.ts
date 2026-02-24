@@ -22,20 +22,20 @@ export async function getApplications(limit?: number, email?: string) {
                     let: { appEmail: "$email" },
                     pipeline: [
                         { $match: { $expr: { $eq: ["$email", "$$appEmail"] } } },
-                        { $project: { profileImage: 1 } },
+                        { $project: { avatar: 1 } },
                         { $limit: 1 },
                     ],
                     as: "_userDoc",
                 },
             },
-            // Use application's own profileImageUrl if present, else User.profileImage
+            // Use application's own profileImageUrl if present, else User.avatar
             {
                 $addFields: {
                     profileImageUrl: {
                         $cond: [
                             { $and: [{ $ifNull: ["$profileImageUrl", false] }, { $ne: ["$profileImageUrl", ""] }] },
                             "$profileImageUrl",
-                            { $ifNull: [{ $arrayElemAt: ["$_userDoc.profileImage", 0] }, null] },
+                            { $ifNull: [{ $arrayElemAt: ["$_userDoc.avatar", 0] }, null] },
                         ],
                     },
                 },

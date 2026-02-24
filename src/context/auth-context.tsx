@@ -7,7 +7,17 @@ export interface User {
     id: string;
     name: string;
     email: string;
-    profileImage?: string;
+    phone?: string;
+    role?: "user" | "admin" | "hr";
+    avatar?: string;
+    isActive?: boolean;
+    company?: string;
+    designation?: string;
+    department?: string;
+    location?: string;
+    bio?: string;
+    skills?: string[];
+    verified?: boolean;
 }
 
 interface AuthContextType {
@@ -72,21 +82,21 @@ export function AuthProvider({ children }: Readonly<{ children: React.ReactNode 
         verifySession();
     }, []);
 
-    const login = (userData: User) => {
+    const login = React.useCallback((userData: User) => {
         setUser(userData);
         localStorage.setItem("vedanco_user", JSON.stringify(userData));
-    };
+    }, []);
 
-    const updateUser = (partial: Partial<User>) => {
+    const updateUser = React.useCallback((partial: Partial<User>) => {
         setUser((prev) => {
             if (!prev) return prev;
             const updated = { ...prev, ...partial };
             localStorage.setItem("vedanco_user", JSON.stringify(updated));
             return updated;
         });
-    };
+    }, []);
 
-    const logout = () => {
+    const logout = React.useCallback(() => {
         apiFetch("/api/auth/logout", {
             method: "POST",
         }).catch(error => {
@@ -95,7 +105,7 @@ export function AuthProvider({ children }: Readonly<{ children: React.ReactNode 
         setUser(null);
         localStorage.removeItem("vedanco_user");
         globalThis.location.href = "/";
-    };
+    }, []);
 
     const contextValue = React.useMemo(() => ({
         user,

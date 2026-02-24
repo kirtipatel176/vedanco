@@ -28,6 +28,11 @@ export async function GET(req: NextRequest) {
                 return NextResponse.json({ success: false, message: 'User not found' }, { status: 404 });
             }
 
+            // Explicit check for false, handling undefined as true (default)
+            if (user.isActive === false) {
+                 return NextResponse.json({ success: false, message: 'Account deactivated' }, { status: 403 });
+            }
+
             return NextResponse.json({
                 success: true,
                 user: {
@@ -35,12 +40,16 @@ export async function GET(req: NextRequest) {
                     name: user.name,
                     email: user.email,
                     phone: user.phone,
+                    role: user.role,
                     company: user.company,
+                    department: user.department,
                     designation: user.designation,
-                    experience: user.experience,
+                    location: user.location,
                     skills: user.skills,
                     bio: user.bio,
-                    profileImage: user.profileImage,
+                    avatar: user.avatar,
+                    verified: user.verified,
+                    isActive: user.isActive,
                 }
             }, { status: 200 });
         } catch {

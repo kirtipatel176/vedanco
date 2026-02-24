@@ -26,40 +26,32 @@ export async function POST(req: Request) {
 
         const { email, password } = parsedData.data;
 
+        // Fetch user with password
         const user = await User.findOne({ email }).select('+password');
 
         if (!user) {
             return NextResponse.json({ success: false, message: 'Invalid email or password' }, { status: 401 });
         }
 
-        // 2. Lockout Check
-        if (user.lockoutUntil && user.lockoutUntil > new Date()) {
-            const minutesLeft = Math.ceil((user.lockoutUntil.getTime() - Date.now()) / 60000);
-            return NextResponse.json({
+        // 2. Account Status Check
+        if (user.isActive === false) {
+             return NextResponse.json({
                 success: false,
-                message: `Account is temporarily locked. Try again in ${minutesLeft} minute(s).`
-            }, { status: 429 });
+                message: 'Your account has been deactivated. Please contact support.'
+            }, { status: 403 });
         }
 
-        // 3. Password Verification abstraction
+        // 3. Password Verification
         const isMatch = await verifyData(password, user.password || "");
 
         if (!isMatch) {
-            // Increment failed login tracking
-            user.failedLoginAttempts += 1;
-            if (user.failedLoginAttempts >= 5) {
-                user.lockoutUntil = new Date(Date.now() + 15 * 60 * 1000); // 15 mins lockout
-            }
-            await user.save();
-
             return NextResponse.json({ success: false, message: 'Invalid email or password' }, { status: 401 });
         }
 
-        // 4. Successful Login: Reset attempts
-        if (user.failedLoginAttempts > 0 || user.lockoutUntil) {
-            user.failedLoginAttempts = 0;
-            user.lockoutUntil = undefined;
-            await User.updateOne({ _id: user._id }, { $set: { failedLoginAttempts: 0 }, $unset: { lockoutUntil: 1 } });
+        // 4. Update Last Login (optional, based on schema)
+        if (user.lastLogin) {
+             user.lastLogin = new Date();
+             await user.save();
         }
 
         // 5. Generate secure SaaS JWT Token
@@ -73,6 +65,8 @@ export async function POST(req: Request) {
                 name: user.name,
                 email: user.email,
                 phone: user.phone,
+                role: user.role,
+                avatar: user.avatar,
             },
             token
         }, { status: 200 });

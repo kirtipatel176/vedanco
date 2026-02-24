@@ -84,7 +84,7 @@ export function MobileNav() {
                     {user && (
                         <div className="flex items-center gap-3 px-3 py-2 mb-2">
                             <Avatar className="h-8 w-8 border border-dashboard-border shrink-0">
-                                <AvatarImage src={user.profileImage || ""} />
+                                <AvatarImage src={user.avatar || undefined} alt="User Avatar" />
                                 <AvatarFallback className="bg-dashboard-accent text-white text-xs font-bold">
                                     {user.name ? user.name.charAt(0).toUpperCase() : "U"}
                                 </AvatarFallback>
