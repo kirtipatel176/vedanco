@@ -70,7 +70,7 @@ export function ProfileForm({ user, onCancel, onSuccess }: Readonly<ProfileFormP
             phone: user.phone,
             company: user.company || "",
             designation: user.designation || "",
-            skills: user.skills ? (Array.isArray(user.skills) ? user.skills.join(", ") : user.skills) : "", 
+            skills: user.skills ? (Array.isArray(user.skills) ? user.skills.join(", ") : user.skills) : "",
             bio: user.bio || "",
         },
     });
@@ -79,8 +79,8 @@ export function ProfileForm({ user, onCancel, onSuccess }: Readonly<ProfileFormP
         setIsLoading(true);
         try {
             // Convert comma-separated string to array
-            const skillsArray = data.skills 
-                ? data.skills.split(",").map((s) => s.trim()).filter(Boolean) 
+            const skillsArray = data.skills
+                ? data.skills.split(",").map((s) => s.trim()).filter(Boolean)
                 : [];
 
             const updatePayload = {
@@ -88,10 +88,9 @@ export function ProfileForm({ user, onCancel, onSuccess }: Readonly<ProfileFormP
                 skills: skillsArray,
                 avatar: profileImageUrl, // Attach newly uploaded or existing image string
                 // Remove experience as it's not in schema
-                experience: undefined, 
+                experience: undefined,
             };
-            
-            // @ts-expect-error - temporary ignore for type mismatch until actions are fully aligned
+
             const result = await updateUserProfile(user._id, updatePayload);
 
             if (result.error) {
