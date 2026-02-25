@@ -37,7 +37,6 @@
     "**/*.mts"
   ],
   "exclude": [
-    "node_modules",
-    "antigravity-simulator"
+    "node_modules"
   ]
 }

@@ -12,7 +12,6 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "dist/**",
-    "antigravity-simulator/**",
     "node_modules/**",
   ]),
 ]);
