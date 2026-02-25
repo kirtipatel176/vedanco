@@ -22,4 +22,7 @@ services:
       # Brevo
       - BREVO_API_KEY=$BREVO_API_KEY
       - BREVO_SENDER_EMAIL=$BREVO_SENDER_EMAIL
+      # Docker Hub CI/CD
+      - DOCKERHUB_USERNAME=$DOCKERHUB_USERNAME
+      - DOCKERHUB_TOKEN=$DOCKERHUB_TOKEN
     restart: unless-stopped
