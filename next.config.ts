@@ -3,6 +3,7 @@ import type { NextConfig } from "next";
 // Force reload for schema changes
 
 const nextConfig: NextConfig = {
+  output: "standalone",
   images: {
     remotePatterns: [
       {

@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      # Next.js variables
+      - NODE_ENV=production
+      - NEXT_PUBLIC_APP_URL=$NEXT_PUBLIC_APP_URL
+      # Database
+      - MONGODB_URI=$MONGODB_URI
+      # Authentication
+      - JWT_SECRET=$JWT_SECRET
+      # ImageKit 
+      - NEXT_PUBLIC_IMAGEKIT_PUBLIC_KEY=$NEXT_PUBLIC_IMAGEKIT_PUBLIC_KEY
+      - NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT=$NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT
+      - IMAGEKIT_PRIVATE_KEY=$IMAGEKIT_PRIVATE_KEY
+      # Brevo
+      - BREVO_API_KEY=$BREVO_API_KEY
+      - BREVO_SENDER_EMAIL=$BREVO_SENDER_EMAIL
+    restart: unless-stopped
